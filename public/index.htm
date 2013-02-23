@@ -161,16 +161,13 @@
             
             new Bomb(this);
         }
- 
-      }  
-    
-
+      }
 
       var Bomb = Class({
         TIME_TILL_EXPLODE: 2,
         TIME_TILL_DESTROY: 2.5,
-        x: 0,
-        y: 0,
+        tileX: 0,
+        tileY: 0,
         width: 16,
         height: 16,
         pos_x: 0,
@@ -180,8 +177,8 @@
         owner: null,
 
         initialize: function(owner) {
-          this.x = Math.floor(owner.x/16)*16;
-          this.y = Math.floor(owner.y/16)*16;
+          this.tileX = Math.floor(owner.x / TILE_WIDTH);
+          this.tileY = Math.floor(owner.y / TILE_HEIGHT);
           this.owner = owner;
           this.owner.bombs.push(this);
         },
@@ -199,17 +196,35 @@
 
         draw: function() {
           if (!this.isExploded) {
-            ctx.fillRect(this.x, this.y, TILE_WIDTH, TILE_HEIGHT);  
+            ctx.fillRect(this.tileX * TILE_WIDTH, this.tileY * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);  
           }
           else {
             // Left flame
-            ctx.fillRect(this.x - TILE_WIDTH * 2, this.y, TILE_WIDTH * 2, TILE_HEIGHT);
+            for (var x = this.tileX; x >= this.tileX - 2; x--) {
+              if (map[this.tileY][x] != 0)
+                break;
+              ctx.fillRect(x * TILE_WIDTH, this.tileY * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+            }
+
             // Right flame
-            ctx.fillRect(this.x + TILE_WIDTH, this.y, TILE_WIDTH * 2, TILE_HEIGHT);
+            for (var x = this.tileX; x <= this.tileX + 2; x++) {
+              if (map[this.tileY][x] != 0)
+                break;
+              ctx.fillRect(x * TILE_WIDTH, this.tileY * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+            }
             // Top flame
-            ctx.fillRect(this.x, this.y - TILE_HEIGHT * 2, TILE_WIDTH, TILE_HEIGHT * 2);
+            for (var y = this.tileY; y >= this.tileY - 2; y--) {
+              if (map[y][this.tileX] != 0)
+                break;
+              ctx.fillRect(this.tileX * TILE_WIDTH, y * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+            }
+
             // Bottom flame
-            ctx.fillRect(this.x, this.y + TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT * 2);
+            for (var y = this.tileY; y <= this.tileY + 2; y++) {
+              if (map[y][this.tileX] != 0)
+                break;
+              ctx.fillRect(this.tileX * TILE_WIDTH, y * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+            }
           }
         }
       });
