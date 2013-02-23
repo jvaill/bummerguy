@@ -532,14 +532,14 @@
 
         Math.seedrandom(1337);
 
-        // // Destructible blocks
-        // for (var y = 0; y < MAP_HEIGHT; y++) {
-        //   for (var x = 0; x < MAP_WIDTH; x++) {
-        //     if (Math.random() >= 0.2) {
-        //       map[y][x] = 2;
-        //     }
-        //   }
-        // }
+        // Destructible blocks
+        for (var y = 0; y < MAP_HEIGHT; y++) {
+          for (var x = 0; x < MAP_WIDTH; x++) {
+            if (Math.random() >= 0.2) {
+              map[y][x] = 2;
+            }
+          }
+        }
 
         // Ensure starting positions are grass
         map[1][1] = 0;
