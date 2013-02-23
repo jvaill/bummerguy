@@ -89,7 +89,7 @@
             for(var i=0;i < this.bombs.length;i++){
                 this.bombs[i].draw();
             }
-            ctx.drawImage(bomberman, 34 , 46, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT, this.x+this.graphics.x, this.y+this.graphics.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT);
+            ctx.drawImage(bomberman, BOMBERMAN_POS_X , BOMBERMAN_POS_Y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT, this.x+this.graphics.x, this.y+this.graphics.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT);
 
         },
 
@@ -175,10 +175,13 @@
         curTicks: 0,
         isExploded: false,
         owner: null,
+        img: null,
 
         initialize: function(owner) {
           this.tileX = Math.floor(owner.x / TILE_WIDTH);
           this.tileY = Math.floor(owner.y / TILE_HEIGHT);
+          this.img = new Image();
+          this.img.src = "images/bomb.png";
           this.owner = owner;
           this.owner.bombs.push(this);
         },
@@ -196,7 +199,7 @@
 
         draw: function() {
           if (!this.isExploded) {
-            ctx.fillRect(this.tileX * TILE_WIDTH, this.tileY * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);  
+            ctx.drawImage(this.img, this.pos_x, this.pos_y, this.width, this.height, this.x, this.y, TILE_WIDTH, TILE_HEIGHT);
           }
           else {
             // Left flame
