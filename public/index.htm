@@ -8,18 +8,37 @@
 
     canvas {
       position: absolute;
-      width: 800px;
-      height: 600px;
+      width: 720px;
+      height: 624px;
       left: 50%;
       top: 50%;
-      margin-left: -400px;
-      margin-top: -300px;
-      background-color: black;
+      margin-left: -360px;
+      margin-top: -312px;
+      background-color: #666;
     }
   </style>
+
+  <script src="http://code.jquery.com/jquery-1.9.1.min.js" type="text/javascript"></script>
+  <script type="text/javascript">
+    $(function() {
+      var ctx = $('canvas').get(0).getContext('2d');
+      ctx.fillText("hey", 100, 100);
+
+      function drawBackground() {
+        
+      }
+
+      // Load background
+      var background = new Image();
+      background.src = "background.png";
+      background.onload = function() {
+        drawBackground();
+      };
+    });
+  </script>
 </head>
 <body>
-  <canvas>
+  <canvas width="720" height="624">
   </canvas>
 </body>
 </html>
