@@ -39,6 +39,7 @@
       var START_Y = TILE_HEIGHT;
 
       var ctx = null,
+          map = null,
           background = null,
           bomberman = null,
           interval = null,
@@ -100,6 +101,16 @@
           }
         }
       });
+
+      function generateMap() {
+        var mapWidth = CANVAS_WIDTH / TILE_WIDTH,
+            mapHeight = CANVAS_HEIGHT / TILE_HEIGHT;
+
+        map = [];
+        for (var i = 0; i < mapHeight; i++) {
+          map[i] = [];
+        }
+      }
 
       function drawBackground() {
         // Draw top border
@@ -203,6 +214,7 @@
           bomberman.src = "images/bomberman.png";
 
           bomberman.onload = function(){
+            generateMap();
             start();
           };
         };
