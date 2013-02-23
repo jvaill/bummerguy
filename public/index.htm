@@ -94,13 +94,13 @@
         var message = $('#message').val();
         $('#message').val('');
         $('#messages').append('<li><strong>You:</strong> ' + message + '</li>');
+        window.socket.emit('message', message);
         return false;
       });
 
 /* ==== Socket Stuff ==== */
       window.socket = io.connect();
       socket.on('message', function (data) {
-        alert(data);
         $('#messages').append('<li><strong>Them:</strong> ' + data + '</li>');
       });
       socket.on('id assignment', function (data) {
@@ -165,7 +165,6 @@
 // from http://wiki.processing.org/w/Rect-Rect_intersection
       function rect_collision(a,b) 
       {
-        
         x_1 = a[0];
         y_1 = a[1];
         width_1 = a[2];
