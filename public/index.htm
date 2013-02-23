@@ -220,7 +220,7 @@ socket.on('news', function (data) {
           }
           else {
             // Left flame
-            for (var x = this.tileX; x >= this.tileX - 2; x--) {
+            for (var x = this.tileX - 1; x >= this.tileX - 2; x--) {
               if (map[this.tileY][x] != 0)
                 break;
               ctx.drawImage(
@@ -236,7 +236,7 @@ socket.on('news', function (data) {
             }
 
             // Right flame
-            for (var x = this.tileX; x <= this.tileX + 2; x++) {
+            for (var x = this.tileX + 1; x <= this.tileX + 2; x++) {
               if (map[this.tileY][x] != 0)
                 break;
               ctx.drawImage(
@@ -251,7 +251,7 @@ socket.on('news', function (data) {
               )            
             }
             // Top flame
-            for (var y = this.tileY; y >= this.tileY - 2; y--) {
+            for (var y = this.tileY - 1; y >= this.tileY - 2; y--) {
               if (map[y][this.tileX] != 0)
                 break;
               ctx.drawImage(
@@ -267,7 +267,7 @@ socket.on('news', function (data) {
             }
 
             // Bottom flame
-            for (var y = this.tileY + 1; y <= this.tileY + 2; y++) {
+            for (var y = this.tileY; y <= this.tileY + 2; y++) {
               if (map[y][this.tileX] != 0)
                 break;
               ctx.drawImage(
