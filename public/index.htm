@@ -9,14 +9,28 @@
       background-color: #EEE;
     }
 
-    canvas {
+    #game {
       position: absolute;
-      width: 720px;
+      width: 960px;
       height: 624px;
       left: 50%;
       top: 50%;
-      margin-left: -360px;
+      margin-left: -480px;
       margin-top: -312px;
+      background-color: #aaa;
+    }
+
+    #chat {
+      width: 240px;
+      height: 624px;
+      margin-left: 720px;
+      padding: 24px;
+    }
+
+    canvas {
+      float: left;
+      width: 720px;
+      height: 624px;
       background-color: #666;
 
       /* Retro-ified */
@@ -59,8 +73,19 @@
       var startPositions = [{x:(1+.5)*16,y:(1+.5)*16},{x:(13+0.5)*16,y:(1+0.5)*16},{x:(1+0.5)*16,y:(11+0.5)*16},{x:(13+.5)*16,y:(11+0.5)*16}];
       window.myId = null;
 
+      $('form').submit(function() {
+        var message = $('#message').val();
+        $('#message').val('');
+        $('#messages').append('<li>' + message + '</li>');
+        return false;
+      });
+
 /* ==== Socket Stuff ==== */
       window.socket = io.connect();
+      socket.on('message', function (data) {
+        alert(data);
+        $('#messages').append('<li>' + data + '</li>');
+      });
       socket.on('id assignment', function (data) {
         console.log("connected, my id is ",data.id);
         myId = data.id;
@@ -559,8 +584,6 @@
             map[y][x] = 1;
           }
         }
-
-        map[5][5] = 2;
       }
 
       function drawArea() {
@@ -651,6 +674,15 @@
   </script>
 </head>
 <body>
-  <canvas></canvas>
+  <div id="game">
+    <canvas></canvas>
+    <div id="chat">
+      <ul id="messages"></ul>
+      <form>
+        <input id="message" type="text" />
+        <input type="submit" />
+      </form>
+    </div>
+  </div>
 </body>
 </html>

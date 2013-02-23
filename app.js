@@ -63,4 +63,8 @@ io.sockets.on('connection',function(socket){
   socket.on('player die', function (data) {
     socket.broadcast.emit('player die',data);
   });
+
+  socket.on('message', function (data) {
+    socket.broadcast.emit('message', data);
+  });
 });
