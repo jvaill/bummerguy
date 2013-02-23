@@ -109,7 +109,7 @@
         y: 24,
         direction: 0,
         bombs: [],
-        maxBombs: 1,
+        maxBombs: 20,
         directions: { left: 0, right: 1, up: 2, down: 3},
         moving: false,
         collision: { x: -8, y: -8, w: 16, h: 16},
@@ -211,6 +211,8 @@
               var newX = this.x + this.movement[this.direction].x * timestep;
               var newY = this.y + this.movement[this.direction].y * timestep;
 
+              // Collision detection follows, I can't believe this even works
+
               var collisionBounds = {
                 top: newY + this.collision.y,
                 right: newX + this.collision.x + this.collision.w,
@@ -220,38 +222,66 @@
 
               if (this.direction == this.directions.up) {
                 var tileY = Math.floor(collisionBounds.top / TILE_HEIGHT);
-                var topLeftTile = map[tileY][Math.floor((collisionBounds.left + 3) / TILE_WIDTH)];
-                var topRightTile = map[tileY][Math.floor((collisionBounds.right - 3) / TILE_WIDTH)];
+                var topCenterTile = map[tileY][Math.floor(newX / TILE_WIDTH)];
+                var topLeftTile = map[tileY][Math.floor(collisionBounds.left / TILE_WIDTH)];
+                var topRightTile = map[tileY][Math.floor(collisionBounds.right / TILE_WIDTH)];
 
-                if (topLeftTile == 1 || topRightTile == 1) {
+                if ((topLeftTile == 1 && topRightTile == 1) || topCenterTile == 1) {
                   newY = tileY * TILE_HEIGHT + TILE_HEIGHT + this.collision.y + this.collision.h;
+                }
+                else if (topLeftTile == 1 && topRightTile == 0 && topCenterTile == 0) {
+                  newX = Math.floor(collisionBounds.left / TILE_WIDTH) * TILE_WIDTH + TILE_WIDTH + this.collision.x + this.collision.w;
+                }
+                else if (topLeftTile == 0 && topRightTile == 1 && topCenterTile == 0) {
+                  newX = Math.floor(collisionBounds.right / TILE_WIDTH) * TILE_WIDTH + this.collision.x;
                 }
               }
               else if (this.direction == this.directions.right) {
                 var tileX = Math.floor(collisionBounds.right / TILE_WIDTH);
-                var rightTopTile = map[Math.floor((collisionBounds.top + 3) / TILE_HEIGHT)][tileX];
-                var rightBottomTile = map[Math.floor((collisionBounds.bottom - 3) / TILE_HEIGHT)][tileX];
+                var rightCenterTile = map[Math.floor(newY / TILE_HEIGHT)][tileX];
+                var rightTopTile = map[Math.floor(collisionBounds.top / TILE_HEIGHT)][tileX];
+                var rightBottomTile = map[Math.floor(collisionBounds.bottom / TILE_HEIGHT)][tileX];
 
-                if (rightTopTile == 1 || rightBottomTile == 1) {
+                if ((rightTopTile == 1 && rightBottomTile == 1) || rightCenterTile == 1) {
                   newX = tileX * TILE_WIDTH + this.collision.x;
+                }
+                else if (rightTopTile == 1 && rightBottomTile == 0 && rightCenterTile == 0) {
+                  newY = Math.floor(collisionBounds.top / TILE_HEIGHT) * TILE_HEIGHT + TILE_HEIGHT + this.collision.y + this.collision.h;
+                }
+                else if (rightTopTile == 0 && rightBottomTile == 1 && rightCenterTile == 0) {
+                  newY = Math.floor(collisionBounds.bottom / TILE_HEIGHT) * TILE_HEIGHT + this.collision.y;
                 }
               }
               else if (this.direction == this.directions.down) {
                 var tileY = Math.floor(collisionBounds.bottom / TILE_HEIGHT);
-                var bottomLeftTile = map[tileY][Math.floor((collisionBounds.left + 3) / TILE_HEIGHT)];
-                var bottomRightTile = map[tileY][Math.floor((collisionBounds.right - 3) / TILE_HEIGHT)];
+                var bottomCenterTile = map[tileY][Math.floor(newX / TILE_HEIGHT)];
+                var bottomLeftTile = map[tileY][Math.floor(collisionBounds.left / TILE_HEIGHT)];
+                var bottomRightTile = map[tileY][Math.floor(collisionBounds.right / TILE_HEIGHT)];
 
-                if (bottomLeftTile == 1 || bottomRightTile == 1) {
+                if ((bottomLeftTile == 1 && bottomRightTile == 1) || bottomCenterTile == 1) {
                   newY = tileY * TILE_HEIGHT + this.collision.y;
+                }
+                else if (bottomLeftTile == 1 && bottomRightTile == 0 && bottomCenterTile == 0) {
+                  newX = Math.floor(collisionBounds.left / TILE_WIDTH) * TILE_WIDTH + TILE_WIDTH + this.collision.x + this.collision.w;
+                }
+                else if (bottomLeftTile == 0 && bottomRightTile == 1 && bottomCenterTile == 0) {
+                  newX = Math.floor(collisionBounds.right / TILE_WIDTH) * TILE_WIDTH + this.collision.x;
                 }
               }
               else if (this.direction == this.directions.left) {
                 var tileX = Math.floor(collisionBounds.left / TILE_WIDTH);
-                var leftTopTile = map[Math.floor((collisionBounds.top + 3) / TILE_HEIGHT)][tileX];
-                var leftBottomTile = map[Math.floor((collisionBounds.bottom - 3) / TILE_HEIGHT)][tileX];
+                var leftCenterTile = map[Math.floor(newY / TILE_HEIGHT)][tileX];
+                var leftTopTile = map[Math.floor(collisionBounds.top / TILE_HEIGHT)][tileX];
+                var leftBottomTile = map[Math.floor(collisionBounds.bottom / TILE_HEIGHT)][tileX];
 
-                if (leftTopTile == 1 || leftBottomTile == 1) {
+                if ((leftTopTile == 1 && leftBottomTile == 1) || leftCenterTile == 1) {
                   newX = tileX * TILE_WIDTH + TILE_WIDTH + this.collision.x + this.collision.w;
+                }
+                else if (leftTopTile == 1 && leftBottomTile == 0 && leftCenterTile == 0) {
+                  newY = Math.floor(collisionBounds.top / TILE_HEIGHT) * TILE_HEIGHT + TILE_HEIGHT + this.collision.y + this.collision.h;
+                }
+                else if (leftTopTile == 0 && leftBottomTile == 1 & leftCenterTile == 0) {
+                  newY = Math.floor(collisionBounds.bottom / TILE_HEIGHT) * TILE_HEIGHT + this.collision.y;
                 }
               }
 
@@ -266,8 +296,8 @@
       }
 
       var Bomb = Class({
-        TIME_TILL_EXPLODE: 2,
-        TIME_TILL_DESTROY: 2.5,
+        TIME_TILL_EXPLODE: 4,
+        TIME_TILL_DESTROY: 5.5,
         tileX: 0,
         tileY: 0,
         width: 16,
