@@ -48,11 +48,13 @@
       var TICKS_PER_FRAME = 15;
       var BOMB_FRAMES = 2;
 
+/* ==== Socket Stuff ==== */
       window.socket = io.connect();
-socket.on('news', function (data) {
-    console.log(data);
-    socket.emit('my other event', { my: 'data' });
-  });
+      socket.on('id assign', function (data) {
+        console.log("connected, my id is ",data.id);
+      }).on('reset', function(data){
+        console.log("reset, players:",data.id);
+      })
 
 
       var TILES = {
@@ -327,17 +329,18 @@ socket.on('news', function (data) {
           return function() {
             loops = 0;
             
-            while ((new Date).getTime() > nextGameTick && loops < maxFrameSkip) {
+            //while ((new Date).getTime() > nextGameTick && loops < maxFrameSkip) {
               update();
-              nextGameTick += skipTicks;
-              loops++;
-            }
+            //  nextGameTick += skipTicks;
+            //  loops++;
+           // }
             
+            //if(loops>0) 
             draw();
           };
         })();
 
-        interval = setInterval(run, 0);
+        interval = setInterval(run, 1000/30);
       }
 
       function init() {
@@ -358,6 +361,7 @@ socket.on('news', function (data) {
           bomberman.src = "images/bomberman.png";
 
           bomberman.onload = function(){
+            
             generateMap();
             start();
           };
