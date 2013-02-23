@@ -2,7 +2,6 @@
 <html>
 <head>
   <script src="http://davidbau.com/encode/seedrandom-min.js"></script>
-  <script src="http://code.createjs.com/createjs-2013.02.12.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
 
   <style type="text/css">
@@ -42,13 +41,21 @@
       var MAP_WIDTH = CANVAS_WIDTH / TILE_WIDTH;
       var MAP_HEIGHT = CANVAS_HEIGHT / TILE_HEIGHT;
       var BOMBERMAN_HEIGHT = 25;
-      var BOMBERMAN_WIDTH = 20;
+      var BOMBERMAN_WIDTH = 18;
       var BOMBERMAN_POS_X = 0;
       var BOMBERMAN_POS_Y = 35;
       var START_X = TILE_WIDTH;
       var START_Y = TILE_HEIGHT;
       var TICKS_PER_FRAME = 15;
       var BOMB_FRAMES = 2;
+      var BOMBERMAN_FRAMES = 5;
+      var Y_COORDS_BOMBERMAN = [0, 75, 110, 35]; // Left, Right, Top, Bottom
+      var X_COORDS_BOMBERMAN = [
+        [150, 128, 106, 84, 64, 40, 22, 2],
+        [2, 22, 46, 70, 92, 110, 130, 150],
+        [2, 22, 46, 70, 90, 110, 130, 150],
+        [2, 22, 46, 70, 92, 110, 130, 150]
+      ]
       var startPositions = [{x:(1+.5)*16,y:(1+.5)*16},{x:(13+0.5)*16,y:(1+0.5)*16},{x:(1+0.5)*16,y:(11+0.5)*16},{x:(13+.5)*16,y:(11+0.5)*16}];
       window.myId = null;
 
@@ -150,6 +157,7 @@
         },
         
         pos: {x: BOMBERMAN_POS_X, y: BOMBERMAN_POS_Y},
+        currentFrame: 0,
 
         getRect: function(){
             return [this.x+this.collision.x,this.y+this.collision.y,this.collision.w,this.collision.h];
@@ -159,6 +167,7 @@
             for(var i=0;i < this.bombs.length;i++){
                 this.bombs[i].draw();
             }
+
             if(this.alive) ctx.drawImage(bomberman, this.pos.x , this.pos.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT, this.x+this.graphics.x, this.y+this.graphics.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT);
 
         },
@@ -229,6 +238,7 @@
             }
             if(direction==this.direction){
                 this.moving=false;
+                this.currentFrame = 0;
             }
         },
         serverStop: function(data){
@@ -251,8 +261,14 @@
             } */
 
             if(this.moving){
-              var newX = this.x + this.movement[this.direction].x * timestep;
-              var newY = this.y + this.movement[this.direction].y * timestep;
+                var newX = this.x + this.movement[this.direction].x * timestep;
+                var newY = this.y + this.movement[this.direction].y * timestep;
+                this.pos.y = Y_COORDS_BOMBERMAN[this.direction];
+            
+                this.currentFrame += 1;
+                this.currentFrame = this.currentFrame % BOMBERMAN_FRAMES;
+                this.pos.x = X_COORDS_BOMBERMAN[this.direction][this.currentFrame];
+                //todo: collision detection here
 
               // Collision detection follows, I can't believe this even works
 
@@ -448,7 +464,7 @@
               ctx.drawImage(
                 this.splosion_img, 
                 this.splosion.middle.x,
-                this.splosion.middle.y - (this.splosion.size.y * (this.tileY - y)),
+                this.splosion.middle.y - (this.splosion.size.x * (this.tileY - y)),
                 this.splosion.size.y,
                 this.splosion.size.x,
                 this.tileX*TILE_WIDTH,
