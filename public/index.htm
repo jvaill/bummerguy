@@ -386,14 +386,13 @@
 
         },
         bomb: function(){
+            if(this.alive==false) return;
             if(this.bombs.length>=this.maxBombs) return;
-            new Bomb(this);
+            new Bomb(this,this.x,this.y);
             socket.emit('player bomb',{'x':this.x,'y':this.y,'id':this.id});
         },
         serverBomb: function(data){
-            this.x=data.x;
-            this.y=data.y;
-            new Bomb(this);
+            new Bomb(this,data.x,data.y);
         }
       }
 
@@ -414,9 +413,9 @@
         splosionData: [],
         splosion: { size: {x: 16, y:16}, middle: {x:35, y:33} },
 
-        initialize: function(owner) {
-          this.tileX = Math.floor(owner.x / TILE_WIDTH);
-          this.tileY = Math.floor(owner.y / TILE_HEIGHT);
+        initialize: function(owner,x,y) {
+          this.tileX = Math.floor(x / TILE_WIDTH);
+          this.tileY = Math.floor(y / TILE_HEIGHT);
           this.bomb_img = new Image();
           this.bomb_img.src = "images/bomb.png";
           this.splosion_img = new Image;
