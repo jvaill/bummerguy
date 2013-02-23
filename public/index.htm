@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <script src="http://code.createjs.com/createjs-2013.02.12.min.js"></script>
   <style type="text/css">
     body {
       background-color: #EEE;
@@ -32,11 +33,16 @@
       var TILE_HEIGHT = 16;
       var CANVAS_WIDTH = 240;
       var CANVAS_HEIGHT = 208;
+      var BOMBERMAN_HEIGHT = 25;
+      var BOMBERMAN_WIDTH = 14;
+      var START_X = TILE_WIDTH;
+      var START_Y = TILE_HEIGHT;
 
-      var interval = null;
-      var ctx = null;
-      var background = null;
-      var bombs = [];
+      var ctx = null,
+          background = null,
+          bomberman = null,
+          interval = null,
+          bombs = [];
 
       // From: http://www.htmlgoodies.com/html5/tutorials/create-an-object-oriented-javascript-class-constructor.html#fbid=EYauP6cfQH6
       var Class = function(methods) {   
@@ -50,6 +56,19 @@
               
         if (!klass.prototype.initialize) klass.prototype.initialize = function(){};      
 
+        // Load background
+        background = new Image();
+        background.src = "images/background.png";
+        bomberman = new Image();
+        bomberman.src = "images/bomberman.png";
+
+        background.onload = function() {
+          drawBackground();
+        };
+        bomberman.onload = function(){
+          drawBomberman();
+        }
+      }
         return klass;    
       };
 
@@ -109,6 +128,11 @@
         }
       }
 
+      function drawBomberman(){
+        // Draw bomberman
+        ctx.drawImage(bomberman, 34 , 46, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT, START_X, START_Y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT);
+      }
+      
       window.createBomb = function(tileX, tileY) {
         new Bomb(tileX, tileY);
       }
