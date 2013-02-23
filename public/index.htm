@@ -269,13 +269,13 @@
                 var topLeftTile = map[tileY][Math.floor(collisionBounds.left / TILE_WIDTH)];
                 var topRightTile = map[tileY][Math.floor(collisionBounds.right / TILE_WIDTH)];
 
-                if ((topLeftTile == 1 && topRightTile == 1) || topCenterTile == 1) {
+                if ((topLeftTile != 0 && topRightTile != 0) || topCenterTile != 0) {
                   newY = tileY * TILE_HEIGHT + TILE_HEIGHT + this.collision.y + this.collision.h;
                 }
-                else if (topLeftTile == 1 && topRightTile == 0 && topCenterTile == 0) {
+                else if (topLeftTile != 0 && topRightTile == 0 && topCenterTile == 0) {
                   newX = Math.floor(collisionBounds.left / TILE_WIDTH) * TILE_WIDTH + TILE_WIDTH + this.collision.x + this.collision.w;
                 }
-                else if (topLeftTile == 0 && topRightTile == 1 && topCenterTile == 0) {
+                else if (topLeftTile == 0 && topRightTile != 0 && topCenterTile == 0) {
                   newX = Math.floor(collisionBounds.right / TILE_WIDTH) * TILE_WIDTH + this.collision.x;
                 }
               }
@@ -285,13 +285,13 @@
                 var rightTopTile = map[Math.floor(collisionBounds.top / TILE_HEIGHT)][tileX];
                 var rightBottomTile = map[Math.floor(collisionBounds.bottom / TILE_HEIGHT)][tileX];
 
-                if ((rightTopTile == 1 && rightBottomTile == 1) || rightCenterTile == 1) {
+                if ((rightTopTile != 0 && rightBottomTile != 0) || rightCenterTile != 0) {
                   newX = tileX * TILE_WIDTH + this.collision.x;
                 }
-                else if (rightTopTile == 1 && rightBottomTile == 0 && rightCenterTile == 0) {
+                else if (rightTopTile != 0 && rightBottomTile == 0 && rightCenterTile == 0) {
                   newY = Math.floor(collisionBounds.top / TILE_HEIGHT) * TILE_HEIGHT + TILE_HEIGHT + this.collision.y + this.collision.h;
                 }
-                else if (rightTopTile == 0 && rightBottomTile == 1 && rightCenterTile == 0) {
+                else if (rightTopTile == 0 && rightBottomTile != 0 && rightCenterTile == 0) {
                   newY = Math.floor(collisionBounds.bottom / TILE_HEIGHT) * TILE_HEIGHT + this.collision.y;
                 }
               }
@@ -301,13 +301,13 @@
                 var bottomLeftTile = map[tileY][Math.floor(collisionBounds.left / TILE_HEIGHT)];
                 var bottomRightTile = map[tileY][Math.floor(collisionBounds.right / TILE_HEIGHT)];
 
-                if ((bottomLeftTile == 1 && bottomRightTile == 1) || bottomCenterTile == 1) {
+                if ((bottomLeftTile != 0 && bottomRightTile != 0) || bottomCenterTile != 0) {
                   newY = tileY * TILE_HEIGHT + this.collision.y;
                 }
-                else if (bottomLeftTile == 1 && bottomRightTile == 0 && bottomCenterTile == 0) {
+                else if (bottomLeftTile != 0 && bottomRightTile == 0 && bottomCenterTile == 0) {
                   newX = Math.floor(collisionBounds.left / TILE_WIDTH) * TILE_WIDTH + TILE_WIDTH + this.collision.x + this.collision.w;
                 }
-                else if (bottomLeftTile == 0 && bottomRightTile == 1 && bottomCenterTile == 0) {
+                else if (bottomLeftTile == 0 && bottomRightTile != 0 && bottomCenterTile == 0) {
                   newX = Math.floor(collisionBounds.right / TILE_WIDTH) * TILE_WIDTH + this.collision.x;
                 }
               }
@@ -317,13 +317,13 @@
                 var leftTopTile = map[Math.floor(collisionBounds.top / TILE_HEIGHT)][tileX];
                 var leftBottomTile = map[Math.floor(collisionBounds.bottom / TILE_HEIGHT)][tileX];
 
-                if ((leftTopTile == 1 && leftBottomTile == 1) || leftCenterTile == 1) {
+                if ((leftTopTile != 0 && leftBottomTile != 0) || leftCenterTile != 0) {
                   newX = tileX * TILE_WIDTH + TILE_WIDTH + this.collision.x + this.collision.w;
                 }
-                else if (leftTopTile == 1 && leftBottomTile == 0 && leftCenterTile == 0) {
+                else if (leftTopTile != 0 && leftBottomTile == 0 && leftCenterTile == 0) {
                   newY = Math.floor(collisionBounds.top / TILE_HEIGHT) * TILE_HEIGHT + TILE_HEIGHT + this.collision.y + this.collision.h;
                 }
-                else if (leftTopTile == 0 && leftBottomTile == 1 & leftCenterTile == 0) {
+                else if (leftTopTile == 0 && leftBottomTile != 0 & leftCenterTile == 0) {
                   newY = Math.floor(collisionBounds.bottom / TILE_HEIGHT) * TILE_HEIGHT + this.collision.y;
                 }
               }
