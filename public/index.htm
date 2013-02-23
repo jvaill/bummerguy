@@ -9,14 +9,28 @@
       background-color: #EEE;
     }
 
-    canvas {
+    #game {
       position: absolute;
-      width: 720px;
+      width: 960px;
       height: 624px;
       left: 50%;
       top: 50%;
-      margin-left: -360px;
+      margin-left: -480px;
       margin-top: -312px;
+      background-color: #aaa;
+    }
+
+    #chat {
+      width: 240px;
+      height: 624px;
+      margin-left: 720px;
+      padding: 24px;
+    }
+
+    canvas {
+      float: left;
+      width: 720px;
+      height: 624px;
       background-color: #666;
 
       /* Retro-ified */
@@ -59,8 +73,19 @@
       var startPositions = [{x:(1+.5)*16,y:(1+.5)*16},{x:(13+0.5)*16,y:(1+0.5)*16},{x:(1+0.5)*16,y:(11+0.5)*16},{x:(13+.5)*16,y:(11+0.5)*16}];
       window.myId = null;
 
+      $('form').submit(function() {
+        var message = $('#message').val();
+        $('#message').val('');
+        $('#messages').append('<li>' + message + '</li>');
+        return false;
+      });
+
 /* ==== Socket Stuff ==== */
       window.socket = io.connect();
+      socket.on('message', function (data) {
+        alert(data);
+        $('#messages').append('<li>' + data + '</li>');
+      });
       socket.on('id assignment', function (data) {
         console.log("connected, my id is ",data.id);
         myId = data.id;
@@ -365,8 +390,8 @@
         owner: null,
         bomb_img: null,
         splosion_img: null,
-        splosion: { size: {x: 17, y:21}, middle: {x:362, y:29} },
         splosionData: [],
+        splosion: { size: {x: 16, y:16}, middle: {x:35, y:33} },
 
         initialize: function(owner) {
           this.tileX = Math.floor(owner.x / TILE_WIDTH);
@@ -387,7 +412,7 @@
             if(players[myId].alive==true){
                 var explosionTiles = [];
                 this.splosionData = [this.tileX-1,null,this.tileX+1,null,this.tileY-1,null, this.tileY,null];
-                for(var x= this.tileX; x>= this.tileX -2; x--){
+                for(var x= this.tileX; x>= this.tileX -3; x--){
                     if (map[this.tileY][x] != 0){
                             if(map[this.tileY][x] > 1){
                                 map[this.tileY][x]=0;
@@ -409,7 +434,7 @@
                     this.splosionData[3] = x;
                     if(rect_collision(players[myId].getRect(),[x*16+2,this.tileY*16+2,12,12])) players[myId].die();
                 }
-                for (var y = this.tileY - 1; y >= this.tileY - 2; y--) {
+                for (var y = this.tileY - 1; y >= this.tileY - 3; y--) {
                     if (map[y][this.tileX] != 0){
                         if(map[y][this.tileX]>1){
                             map[y][this.tileX] = 0;
@@ -580,8 +605,6 @@
             map[y][x] = 1;
           }
         }
-
-        map[5][5] = 2;
       }
 
       function drawArea() {
@@ -672,6 +695,15 @@
   </script>
 </head>
 <body>
-  <canvas></canvas>
+  <div id="game">
+    <canvas></canvas>
+    <div id="chat">
+      <ul id="messages"></ul>
+      <form>
+        <input id="message" type="text" />
+        <input type="submit" />
+      </form>
+    </div>
+  </div>
 </body>
 </html>
