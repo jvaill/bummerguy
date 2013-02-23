@@ -165,6 +165,7 @@
 // from http://wiki.processing.org/w/Rect-Rect_intersection
       function rect_collision(a,b) 
       {
+        
         x_1 = a[0];
         y_1 = a[1];
         width_1 = a[2];
@@ -174,7 +175,9 @@
         width_2 = b[2];
         height_2 = b[3];
 
-        return !(x_1 > x_2+width_2 || x_1+width_1 < x_2 || y_1 > y_2+height_2 || y_1+height_1 < y_2);
+        var result = !(x_1 > x_2+width_2 || x_1+width_1 < x_2 || y_1 > y_2+height_2 || y_1+height_1 < y_2);
+        if(result) console.log(a,b);
+        return result;
       }
 
       window.player = {
@@ -209,7 +212,6 @@
             for(var i=0;i < this.bombs.length;i++){
                 this.bombs[i].draw();
             }
-            ctx.fillText(this.currentFrame, 10, 10);
             if(this.alive) ctx.drawImage(bomberman, this.pos.x , this.pos.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT, this.x+this.graphics.x, this.y+this.graphics.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT);
 
         },
@@ -383,14 +385,13 @@
 
         },
         bomb: function(){
+            if(this.alive==false) return;
             if(this.bombs.length>=this.maxBombs) return;
-            new Bomb(this);
+            new Bomb(this,this.x,this.y);
             socket.emit('player bomb',{'x':this.x,'y':this.y,'id':this.id});
         },
         serverBomb: function(data){
-            this.x=data.x;
-            this.y=data.y;
-            new Bomb(this);
+            new Bomb(this,data.x,data.y);
         }
       }
 
@@ -411,9 +412,9 @@
         splosionData: [],
         splosion: { size: {x: 16, y:16}, middle: {x:35, y:33} },
 
-        initialize: function(owner) {
-          this.tileX = Math.floor(owner.x / TILE_WIDTH);
-          this.tileY = Math.floor(owner.y / TILE_HEIGHT);
+        initialize: function(owner,x,y) {
+          this.tileX = Math.floor(x / TILE_WIDTH);
+          this.tileY = Math.floor(y / TILE_HEIGHT);
           this.bomb_img = new Image();
           this.bomb_img.src = "images/bomb.png";
           this.splosion_img = new Image;
@@ -430,6 +431,7 @@
             if(players[myId].alive==true){
                 var explosionTiles = [];
                 this.splosionData = [this.tileX-1,null,this.tileX+1,null,this.tileY-1,null, this.tileY,null];
+                console.log('1'); 
                 for(var x= this.tileX; x>= this.tileX -3; x--){
                     if (map[this.tileY][x] != 0){
                             if(map[this.tileY][x] > 1){
@@ -441,6 +443,7 @@
                     this.splosionData[1] = x;
                     if(rect_collision(players[myId].getRect(),[x*16+2,this.tileY*16+2,12,12])) players[myId].die();
                 }
+                console.log('2'); 
                 for (var x = this.tileX + 1; x <= this.tileX + 2; x++) {
                     if (map[this.tileY][x] != 0){
                         if(map[this.tileY][x]>1){
@@ -452,6 +455,7 @@
                     this.splosionData[3] = x;
                     if(rect_collision(players[myId].getRect(),[x*16+2,this.tileY*16+2,12,12])) players[myId].die();
                 }
+                console.log('3'); 
                 for (var y = this.tileY - 1; y >= this.tileY - 3; y--) {
                     if (map[y][this.tileX] != 0){
                         if(map[y][this.tileX]>1){
@@ -461,9 +465,9 @@
                         break;
                     }
                     this.splosionData[5] = y;
-                    if(rect_collision(players[myId].getRect(),[this.tileY*16+2,y*16+2,12,12])) players[myId].die();
+                    if(rect_collision(players[myId].getRect(),[this.tileX*16+2,y*16+2,12,12])) players[myId].die();
                 }
-                    
+                console.log('4'); 
                 for (var y = this.tileY; y <= this.tileY + 2; y++) {
                     if (map[y][this.tileX] != 0){
                         if(map[y][this.tileX]>1){
@@ -473,7 +477,7 @@
                         break;
                     }
                     this.splosionData[7] = y;
-                    if(rect_collision(players[myId].getRect(),[this.tileY*16-4,y*16-4,12,12])) players[myId].die();
+                    if(rect_collision(players[myId].getRect(),[this.tileX*16+2,y*16+2,12,12])) players[myId].die();
                 }
             }
 
@@ -705,10 +709,6 @@
 
       init();
     });
-
-    function TextureManager(){
-
-    }
 
   </script>
 </head>
