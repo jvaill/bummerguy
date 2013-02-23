@@ -72,6 +72,8 @@
         players[data.id].serverMove(data);
       }).on('player stop',function(data){
         players[data.id].serverStop(data);
+      }).on('player bomb',function(data){
+        players[data.id].serverBomb(data);
       });
 
       var TILES = {
@@ -177,6 +179,7 @@
         },
         move: function(direction){
             if(this.moving==false || this.direction!=direction){
+                console.log("Sending move direction");
                 socket.emit('player move',{'x':this.x,'y':this.y,'direction':direction,'id':this.id});
             }
             this.moving=true;
@@ -261,6 +264,12 @@
         },
         bomb: function(){
             if(this.bombs.length>=this.maxBombs) return;
+            new Bomb(this);
+            socket.emit('player bomb',{'x':this.x,'y':this.y,'id':this.id});
+        },
+        serverBomb: function(data){
+            this.x=data.x;
+            this.y=data.y;
             new Bomb(this);
         }
       }
