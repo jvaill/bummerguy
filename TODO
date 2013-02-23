@@ -1,0 +1,24 @@
+Server:
+  - Update Logic
+  - Room joining
+  - Tile engine
+  - 
+
+Client:
+
+  - Renderer
+  - Tile renderer
+
+Content:
+
+  - Sprites
+  - Levels
+  - 
+
+
+
+Shared:
+
+  - Synchronization
+  - Collision detection
+  - 
