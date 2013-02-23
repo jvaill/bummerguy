@@ -26,6 +26,9 @@
       margin-left: 720px;
       padding: 24px;
     }
+    body{
+      overflow: hidden;
+    }
 
     canvas {
       float: left;
@@ -62,7 +65,7 @@
       var START_Y = TILE_HEIGHT;
       var TICKS_PER_FRAME = 15;
       var BOMB_FRAMES = 2;
-      var BOMBERMAN_FRAMES = 5;
+      var BOMBERMAN_FRAMES = 7;
       var Y_COORDS_BOMBERMAN = [0, 75, 110, 35]; // Left, Right, Top, Bottom
       var X_COORDS_BOMBERMAN = [
         [150, 128, 106, 84, 64, 40, 22, 2],
@@ -172,6 +175,7 @@
         collision: { x: -7, y: -7, w: 15, h: 15},
         graphics: {x:-8,y:-16,w:16,h:24},
         movement : [{x: -100, y:0},{x: 100,y:0},{x:0,y:-100},{x:0,y:100}],
+        currentFrame: 0,
 
         construct: function(id){
           players[id] = $.extend(true,{},player);
@@ -182,7 +186,6 @@
         },
         
         pos: {x: BOMBERMAN_POS_X, y: BOMBERMAN_POS_Y},
-        currentFrame: 0,
 
         getRect: function(){
             return [this.x+this.collision.x,this.y+this.collision.y,this.collision.w,this.collision.h];
@@ -192,7 +195,7 @@
             for(var i=0;i < this.bombs.length;i++){
                 this.bombs[i].draw();
             }
-
+            ctx.fillText(this.currentFrame, 10, 10);
             if(this.alive) ctx.drawImage(bomberman, this.pos.x , this.pos.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT, this.x+this.graphics.x, this.y+this.graphics.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT);
 
         },
@@ -282,9 +285,8 @@
                 var newY = this.y + this.movement[this.direction].y * timestep;
                 this.pos.y = Y_COORDS_BOMBERMAN[this.direction];
             
-                this.currentFrame += 1;
-                this.currentFrame = this.currentFrame % BOMBERMAN_FRAMES;
-                this.pos.x = X_COORDS_BOMBERMAN[this.direction][this.currentFrame];
+                this.currentFrame += 0.35;
+                this.currentFrame = this.currentFrame % (BOMBERMAN_FRAMES);
 
               // Collision detection follows, I can't believe this even works
 
@@ -363,6 +365,8 @@
               this.x = newX;
               this.y = newY;
             }
+            this.pos.x = X_COORDS_BOMBERMAN[this.direction][Math.floor(this.currentFrame)];
+
         },
         bomb: function(){
             if(this.bombs.length>=this.maxBombs) return;
