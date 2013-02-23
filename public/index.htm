@@ -174,7 +174,7 @@
 
         draw: function() {
           if (!this.isExploded) {
-          ctx.drawImage(this.x, this.y, pos_x, pos_y, width, height);  
+            ctx.fillRect(this.x, this.y, TILE_WIDTH, TILE_HEIGHT);  
           }
           else {
             // Left flame
