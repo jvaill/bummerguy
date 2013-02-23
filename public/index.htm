@@ -65,6 +65,17 @@
         for (var x = 0; x < CANVAS_WIDTH; x += TILE_WIDTH) {
           ctx.drawImage(background, 0, 0, TILE_WIDTH, TILE_HEIGHT, x, y, TILE_WIDTH, TILE_HEIGHT);
         }
+
+        // Draw left border
+        for (var y = 0; y < CANVAS_HEIGHT; y += TILE_HEIGHT) {
+          ctx.drawImage(background, 0, 0, TILE_WIDTH, TILE_HEIGHT, 0, y, TILE_WIDTH, TILE_HEIGHT);
+        }
+
+        // Draw right border
+        var x = CANVAS_WIDTH - TILE_WIDTH;
+        for (var y = 0; y < CANVAS_HEIGHT; y += TILE_HEIGHT) {
+          ctx.drawImage(background, 0, 0, TILE_WIDTH, TILE_HEIGHT, x, y, TILE_WIDTH, TILE_HEIGHT);
+        }
       }
 
       init();
