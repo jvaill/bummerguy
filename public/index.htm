@@ -212,7 +212,6 @@
             for(var i=0;i < this.bombs.length;i++){
                 this.bombs[i].draw();
             }
-            ctx.fillText(this.currentFrame, 10, 10);
             if(this.alive) ctx.drawImage(bomberman, this.pos.x , this.pos.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT, this.x+this.graphics.x, this.y+this.graphics.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT);
 
         },
@@ -710,10 +709,6 @@
 
       init();
     });
-
-    function TextureManager(){
-
-    }
 
   </script>
 </head>
