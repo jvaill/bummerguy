@@ -399,7 +399,7 @@
         owner: null,
         bomb_img: null,
         splosion_img: null,
-        splosion: { size: {x: 17, y:21}, middle: {x:362, y:29} },
+        splosion: { size: {x: 16, y:16}, middle: {x:35, y:33} },
 
         initialize: function(owner) {
           this.tileX = Math.floor(owner.x / TILE_WIDTH);
@@ -452,7 +452,7 @@
           }
           else {
             // Left flame
-            for (var x = this.tileX - 1; x >= this.tileX - 2; x--) {
+            for (var x = this.tileX - 1; x >= this.tileX - 3; x--) {
               if (map[this.tileY][x] != 0)
                 break;
               ctx.drawImage(
@@ -468,7 +468,7 @@
             }
 
             // Right flame
-            for (var x = this.tileX + 1; x <= this.tileX + 2; x++) {
+            for (var x = this.tileX; x <= this.tileX + 2; x++) {
               if (map[this.tileY][x] != 0)
                 break;
               ctx.drawImage(
@@ -483,7 +483,7 @@
               )            
             }
             // Top flame
-            for (var y = this.tileY - 1; y >= this.tileY - 2; y--) {
+            for (var y = this.tileY - 1; y >= this.tileY - 3; y--) {
               if (map[y][this.tileX] != 0)
                 break;
               ctx.drawImage(
@@ -499,7 +499,7 @@
             }
 
             // Bottom flame
-            for (var y = this.tileY; y <= this.tileY + 2; y++) {
+            for (var y = this.tileY + 1; y <= this.tileY + 2; y++) {
               if (map[y][this.tileX] != 0)
                 break;
               ctx.drawImage(
@@ -532,14 +532,14 @@
 
         Math.seedrandom(1337);
 
-        // Destructible blocks
-        for (var y = 0; y < MAP_HEIGHT; y++) {
-          for (var x = 0; x < MAP_WIDTH; x++) {
-            if (Math.random() >= 0.2) {
-              map[y][x] = 2;
-            }
-          }
-        }
+        // // Destructible blocks
+        // for (var y = 0; y < MAP_HEIGHT; y++) {
+        //   for (var x = 0; x < MAP_WIDTH; x++) {
+        //     if (Math.random() >= 0.2) {
+        //       map[y][x] = 2;
+        //     }
+        //   }
+        // }
 
         // Ensure starting positions are grass
         map[1][1] = 0;
