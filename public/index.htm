@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <script src="http://davidbau.com/encode/seedrandom-min.js"></script>
   <script src="http://code.createjs.com/createjs-2013.02.12.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
 
@@ -76,7 +77,8 @@
 
       var TILES = {
         0: {x: TILE_WIDTH, y: TILE_HEIGHT},
-        1: {x: 0, y: 0}
+        1: {x: 0, y: 0},
+        2: {x: 48, y: 48}
       };
 
       window.players = [];
@@ -418,6 +420,34 @@
           }
         }
 
+        Math.seedrandom(1337);
+
+        // Destructible blocks
+        for (var y = 0; y < MAP_HEIGHT; y++) {
+          for (var x = 0; x < MAP_WIDTH; x++) {
+            if (Math.random() >= 0.2) {
+              map[y][x] = 2;
+            }
+          }
+        }
+
+        // Ensure starting positions are grass
+        map[1][1] = 0;
+        map[1][2] = 0;
+        map[2][1] = 0;
+        
+        map[1][MAP_WIDTH - 2] = 0;
+        map[1][MAP_WIDTH - 3] = 0;
+        map[2][MAP_WIDTH - 2] = 0;
+
+        map[MAP_HEIGHT - 2][1] = 0;
+        map[MAP_HEIGHT - 2][2] = 0;
+        map[MAP_HEIGHT - 3][1] = 0;
+
+        map[MAP_HEIGHT - 2][MAP_WIDTH - 2] = 0;
+        map[MAP_HEIGHT - 2][MAP_WIDTH - 3] = 0;
+        map[MAP_HEIGHT - 3][MAP_WIDTH - 2] = 0;
+
         // Top border
         for (var x = 0; x < MAP_WIDTH; x++) {
           map[0][x] = 1;
@@ -444,6 +474,8 @@
             map[y][x] = 1;
           }
         }
+
+        map[5][5] = 2;
       }
 
       function drawArea() {
