@@ -76,6 +76,13 @@
         for (var y = 0; y < CANVAS_HEIGHT; y += TILE_HEIGHT) {
           ctx.drawImage(background, 0, 0, TILE_WIDTH, TILE_HEIGHT, x, y, TILE_WIDTH, TILE_HEIGHT);
         }
+
+        // Draw grass
+        for (var y = TILE_HEIGHT; y < CANVAS_HEIGHT - TILE_HEIGHT; y += TILE_HEIGHT) {
+          for (var x = TILE_WIDTH; x < CANVAS_WIDTH - TILE_WIDTH; x += TILE_WIDTH) {
+            ctx.drawImage(background, TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT, x, y, TILE_WIDTH, TILE_HEIGHT);
+          }
+        }
       }
 
       init();
