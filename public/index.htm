@@ -8,9 +8,15 @@
     body {
       font-family: hevetica;
       background-color: #EEE;
+      background: url(images/sitebg.png) no-repeat center center fixed;
+      -webkit-background-size: cover;
+      -moz-background-size: cover;
+      -o-background-size: cover;
+      background-size: cover;
     }
 
     #game {
+      border-radius: 6px;
       position: absolute;
       width: 960px;
       height: 624px;
@@ -159,6 +165,7 @@
 // from http://wiki.processing.org/w/Rect-Rect_intersection
       function rect_collision(a,b) 
       {
+        
         x_1 = a[0];
         y_1 = a[1];
         width_1 = a[2];
@@ -168,7 +175,9 @@
         width_2 = b[2];
         height_2 = b[3];
 
-        return !(x_1 > x_2+width_2 || x_1+width_1 < x_2 || y_1 > y_2+height_2 || y_1+height_1 < y_2);
+        var result = !(x_1 > x_2+width_2 || x_1+width_1 < x_2 || y_1 > y_2+height_2 || y_1+height_1 < y_2);
+        if(result) console.log(a,b);
+        return result;
       }
 
       window.player = {
@@ -423,6 +432,7 @@
             if(players[myId].alive==true){
                 var explosionTiles = [];
                 this.splosionData = [this.tileX-1,null,this.tileX+1,null,this.tileY-1,null, this.tileY,null];
+                console.log('1'); 
                 for(var x= this.tileX; x>= this.tileX -3; x--){
                     if (map[this.tileY][x] != 0){
                             if(map[this.tileY][x] > 1){
@@ -434,6 +444,7 @@
                     this.splosionData[1] = x;
                     if(rect_collision(players[myId].getRect(),[x*16+2,this.tileY*16+2,12,12])) players[myId].die();
                 }
+                console.log('2'); 
                 for (var x = this.tileX + 1; x <= this.tileX + 2; x++) {
                     if (map[this.tileY][x] != 0){
                         if(map[this.tileY][x]>1){
@@ -445,6 +456,7 @@
                     this.splosionData[3] = x;
                     if(rect_collision(players[myId].getRect(),[x*16+2,this.tileY*16+2,12,12])) players[myId].die();
                 }
+                console.log('3'); 
                 for (var y = this.tileY - 1; y >= this.tileY - 3; y--) {
                     if (map[y][this.tileX] != 0){
                         if(map[y][this.tileX]>1){
@@ -454,9 +466,9 @@
                         break;
                     }
                     this.splosionData[5] = y;
-                    if(rect_collision(players[myId].getRect(),[this.tileY*16+2,y*16+2,12,12])) players[myId].die();
+                    if(rect_collision(players[myId].getRect(),[this.tileX*16+2,y*16+2,12,12])) players[myId].die();
                 }
-                    
+                console.log('4'); 
                 for (var y = this.tileY; y <= this.tileY + 2; y++) {
                     if (map[y][this.tileX] != 0){
                         if(map[y][this.tileX]>1){
@@ -466,7 +478,7 @@
                         break;
                     }
                     this.splosionData[7] = y;
-                    if(rect_collision(players[myId].getRect(),[this.tileY*16-4,y*16-4,12,12])) players[myId].die();
+                    if(rect_collision(players[myId].getRect(),[this.tileX*16+2,y*16+2,12,12])) players[myId].die();
                 }
             }
 
