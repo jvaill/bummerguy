@@ -56,21 +56,8 @@
               
         if (!klass.prototype.initialize) klass.prototype.initialize = function(){};      
 
-        // Load background
-        background = new Image();
-        background.src = "images/background.png";
-        bomberman = new Image();
-        bomberman.src = "images/bomberman.png";
-
-        background.onload = function() {
-          drawBackground();
-        };
-        bomberman.onload = function(){
-          drawBomberman();
-        }
-      }
         return klass;    
-      };
+      }
 
       var Bomb = Class({
         x: 0,
@@ -130,7 +117,7 @@
       function drawBomberman(){
         // Draw bomberman
         ctx.drawImage(bomberman, 34 , 46, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT, START_X, START_Y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT);
-
+      }
       window.createBomb = function(x, y) {
         new Bomb();
       }
@@ -183,13 +170,22 @@
         // Load background
         background = new Image();
         background.src = "images/background.png";
+
         background.onload = function() {
-          start();
+          bomberman = new Image();
+          bomberman.src = "images/bomberman.png";
+
+          bomberman.onload = function(){
+            drawBomberman();
+            start();
+          };
         };
+
       }
 
       init();
     });
+
   </script>
 </head>
 <body>
