@@ -6,6 +6,7 @@
 
   <style type="text/css">
     body {
+      font-family: hevetica;
       background-color: #EEE;
     }
 
@@ -21,13 +22,20 @@
     }
 
     #chat {
-      width: 240px;
-      height: 624px;
+      width: 196px;
+      height: 576px;
       margin-left: 720px;
       padding: 24px;
     }
     body{
       overflow: hidden;
+    }
+
+    #messages {
+      list-style-type: none;
+      padding: 0;
+      height: 520px;
+      overflow: scroll;
     }
 
     canvas {
@@ -79,7 +87,7 @@
       $('form').submit(function() {
         var message = $('#message').val();
         $('#message').val('');
-        $('#messages').append('<li>' + message + '</li>');
+        $('#messages').append('<li><strong>You:</strong> ' + message + '</li>');
         return false;
       });
 
@@ -87,7 +95,7 @@
       window.socket = io.connect();
       socket.on('message', function (data) {
         alert(data);
-        $('#messages').append('<li>' + data + '</li>');
+        $('#messages').append('<li><strong>Them:</strong> ' + data + '</li>');
       });
       socket.on('id assignment', function (data) {
         console.log("connected, my id is ",data.id);
