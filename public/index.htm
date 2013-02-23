@@ -32,6 +32,7 @@
 
       
     $(function() {
+      var interval = false;
       var FPS = 30;
       var TILE_WIDTH = 16;
       var TILE_HEIGHT = 16;
@@ -74,6 +75,11 @@
         players[data.id].serverStop(data);
       }).on('player bomb',function(data){
         players[data.id].serverBomb(data);
+      }).on('disconnect',function(data){
+        socket.disconnect();
+            $("#body").html("Server restarted, <a onclick='location.reload();'>Refresh!</a>");
+      }).on('player die',function(data){
+        players[data.id].serverDie();
       });
 
       var TILES = {
@@ -105,6 +111,21 @@
         return klass;    
       }
 
+// from http://wiki.processing.org/w/Rect-Rect_intersection
+      function rect_collision(a,b) 
+      {
+        x_1 = a[0];
+        y_1 = a[1];
+        width_1 = a[2];
+        height_1 = a[3];
+        x_2 = b[0];
+        y_2 = b[1];
+        width_2 = b[2];
+        height_2 = b[3];
+
+        return !(x_1 > x_2+width_2 || x_1+width_1 < x_2 || y_1 > y_2+height_2 || y_1+height_1 < y_2);
+      }
+
       window.player = {
         id: 0,
         x: 24,
@@ -123,15 +144,20 @@
           players[id].id = id;
           players[id].x = startPositions[id].x;
           players[id].y = startPositions[id].y;
+          players[id].alive = true;
         },
         
         pos: {x: BOMBERMAN_POS_X, y: BOMBERMAN_POS_Y},
+
+        getRect: function(){
+            return [this.x+this.collision.x,this.y+this.collision.y,this.collision.w,this.collision.h];
+        },
 
         draw: function(){
             for(var i=0;i < this.bombs.length;i++){
                 this.bombs[i].draw();
             }
-            ctx.drawImage(bomberman, this.pos.x , this.pos.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT, this.x+this.graphics.x, this.y+this.graphics.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT);
+            if(this.alive) ctx.drawImage(bomberman, this.pos.x , this.pos.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT, this.x+this.graphics.x, this.y+this.graphics.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT);
 
         },
 
@@ -173,13 +199,16 @@
                 }
             });
         },
-
-        bindToServer: function(){
-            
+        die: function(){
+            this.alive=false;
+            console.log('I am dead');
+            socket.emit('player die',{'id':this.id});
+        },
+        serverDie: function(){
+            this.alive=false;
         },
         move: function(direction){
             if(this.moving==false || this.direction!=direction){
-                console.log("Sending move direction");
                 socket.emit('player move',{'x':this.x,'y':this.y,'direction':direction,'id':this.id});
             }
             this.moving=true;
@@ -193,7 +222,7 @@
             this.moving=true;
         },
         stop: function(direction){
-            if(this.moving==true || this.direction!=direction){
+            if(this.moving==true && this.direction==direction){
                 socket.emit('player stop',{'x':this.x,'y':this.y,'direction':direction,'id':this.id});
             }
             if(direction==this.direction){
@@ -210,6 +239,15 @@
             for(var i=0;i < this.bombs.length;i++){
                 this.bombs[i].update();
             }
+            /*if(myId == this.id && this.lastUpdate < (new Date()).getTime()-500){
+                this.lastUpdate = (new Date()).getTime();
+                if(this.moving){
+                    socket.emit('player move',{'x':this.x,'y':this.y,'direction':this.direction,'id':this.id});
+                }else{
+                    socket.emit('player stop',{'x':this.x,'y':this.y,'direction':this.direction,'id':this.id});
+                }
+            } */
+
             if(this.moving){
               var newX = this.x + this.movement[this.direction].x * timestep;
               var newY = this.y + this.movement[this.direction].y * timestep;
@@ -303,8 +341,30 @@
 
         update: function() {
           this.curTicks++;
-          if (this.curTicks == this.TIME_TILL_EXPLODE * FPS) {
+          if (this.isExploded ==false && this.curTicks == this.TIME_TILL_EXPLODE * FPS) {
             this.isExploded = true;
+            //check if it killed our player
+            if(players[myId].alive==true){
+                var explosionTiles = [];
+                for(var x= this.tileX; x>= this.tileX -2; x--){
+                    if (map[this.tileY][x] != 0) break;
+                    if(rect_collision(players[myId].getRect(),[x*16,this.tileY*16,16,16])) players[myId].die();
+                }
+                for (var x = this.tileX + 1; x <= this.tileX + 2; x++) {
+                    if (map[this.tileY][x] != 0) break;
+                    if(rect_collision(players[myId].getRect(),[x*16,this.tileY*16,16,16])) players[myId].die();
+                }
+                for (var y = this.tileY - 1; y >= this.tileY - 2; y--) {
+                    if (map[y][this.tileX] != 0) break;
+                    if(rect_collision(players[myId].getRect(),[this.tileY*16,y*16,16,16])) players[myId].die();
+                }
+                    
+                for (var y = this.tileY; y <= this.tileY + 2; y++) {
+                    if (map[y][this.tileX] != 0) break
+                    if(rect_collision(players[myId].getRect(),[this.tileY*16,y*16,16,16])) players[myId].die();
+                }
+            }
+
           }
           else if (this.curTicks == this.TIME_TILL_DESTROY * FPS) {
             var idx = this.owner.bombs.indexOf(this);
