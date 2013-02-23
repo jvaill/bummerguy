@@ -27,6 +27,7 @@
   <script src="http://code.jquery.com/jquery-1.9.1.min.js" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
+      var FPS = 30;
       var TILE_WIDTH = 16;
       var TILE_HEIGHT = 16;
       var CANVAS_WIDTH = 240;
@@ -35,6 +36,39 @@
       var interval = null;
       var ctx = null;
       var background = null;
+      var bombs = [];
+
+      // From: http://www.htmlgoodies.com/html5/tutorials/create-an-object-oriented-javascript-class-constructor.html#fbid=EYauP6cfQH6
+      var Class = function(methods) {   
+        var klass = function() {    
+          this.initialize.apply(this, arguments);          
+        };  
+
+        for (var property in methods) { 
+          klass.prototype[property] = methods[property];
+        }
+              
+        if (!klass.prototype.initialize) klass.prototype.initialize = function(){};      
+
+        return klass;    
+      };
+
+      var Bomb = Class({
+        x: 0,
+        y: 0,
+
+        initialize: function() {
+          bombs.push(this);
+        },
+
+        update: function() {
+          console.log('update');
+        },
+
+        draw: function() {
+
+        }
+      });
 
       function drawBackground() {
         // Draw top border
@@ -75,24 +109,26 @@
       }
 
       window.createBomb = function(x, y) {
-        alert('test');
+        new Bomb();
       }
 
-      var x = 0, y = 0;
       function update() {
-        x += 1;
-        y += 1;
+        for (var i = 0; i < bombs.length; i++) {
+          bombs[i].update();
+        }
       }
 
       function draw() {
         drawBackground();
-        ctx.fillRect(x, y, 32, 32);
+        for (var i = 0; i < bombs.length; i++) {
+          bombs[i].draw();
+        }
       }
 
       function start() {
         // This is where the magic begins, my friends
         var run = (function() {
-          var loops = 0, skipTicks = 1000 / 60,
+          var loops = 0, skipTicks = 1000 / 30,
               maxFrameSkip = 10,
               nextGameTick = (new Date).getTime();
           
