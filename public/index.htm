@@ -27,76 +27,7 @@
 
   <script src="http://code.jquery.com/jquery-1.9.1.min.js" type="text/javascript"></script>
   <script type="text/javascript">
-      var player = {
-        id: 0,
-        x: 24,
-        y: 24,
-        direction: 0,
-        directions: { left: 0, right: 1, up: 2, down: 3},
-        moving: false,
-        collision: { x: -8, y: -8, w: 16, h: 16},
-        graphics: {x:-8,y:-16,w:16,h:24},
-        
-        render: function(ctx){
-            ctx.fillRect( this.x+this.graphics.x,this.y+this.graphics.y,this.graphics.w,this.graphics.h);
-        },
-
-        bindToKeyboard: function(){
-            var p=this; //scope into the jquery callbacks
-            $(document).keydown(function(e){
-                switch(e.keyCode){
-                    case 37: 
-                        p.move(player.directions.left);
-                        break;
-                    case 39: 
-                        p.move(player.directions.right);
-                        break;
-                    case 38:
-                        p.move(player.directions.up);
-                        break;
-                    case 40:
-                        p.move(player.directions.down);
-                        break;
-                }
-                console.log(e.keyCode);
-            });
-            $(document).keyup(function(e){
-                switch(e.keyCode){
-                    case 37: 
-                        p.stop(player.directions.left);
-                        break;
-                    case 39: 
-                        p.stop(player.directions.right);
-                        break;
-                    case 38:
-                        p.stop(player.directions.up);
-                        break;
-                    case 40:
-                        p.stop(player.directions.down);
-                        break;
-                }
-                console.log(e.keyCode);
-            });
-        },
-
-        bindToServer: function(){
-            
-        },
-        move: function(direction){
-            console.log(direction);
-        },
-        stop: function(direction){
-            console.log("stop",direction);
-        },
-
-        update: function(){
-            
-        }
- 
-      }  
-    
-      var ctx = null;
-
+      
     $(function() {
       var FPS = 30;
       var TILE_WIDTH = 16;
@@ -107,6 +38,7 @@
       var BOMBERMAN_WIDTH = 14;
       var START_X = TILE_WIDTH;
       var START_Y = TILE_HEIGHT;
+      window.players = [];
 
       var ctx = null,
           background = null,
@@ -128,6 +60,85 @@
 
         return klass;    
       }
+
+      window.player = {
+        id: 0,
+        x: 24,
+        y: 24,
+        direction: 0,
+        directions: { left: 0, right: 1, up: 2, down: 3},
+        moving: false,
+        collision: { x: -8, y: -8, w: 16, h: 16},
+        graphics: {x:-8,y:-16,w:16,h:24},
+        movement : [{x: -100, y:0},{x: 100,y:0},{x:0,y:-100},{x:0,y:100}],
+        
+        draw: function(){
+            ctx.drawImage(bomberman, 34 , 46, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT, this.x+this.graphics.x, this.y+this.graphics.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT);
+
+        },
+
+        bindToKeyboard: function(){
+            var p=this; //scope into the jquery callbacks
+            $(document).keydown(function(e){
+                switch(e.keyCode){
+                    case 37: 
+                        p.move(player.directions.left);
+                        break;
+                    case 39: 
+                        p.move(player.directions.right);
+                        break;
+                    case 38:
+                        p.move(player.directions.up);
+                        break;
+                    case 40:
+                        p.move(player.directions.down);
+                        break;
+                }
+            });
+            $(document).keyup(function(e){
+                switch(e.keyCode){
+                    case 37: 
+                        p.stop(player.directions.left);
+                        break;
+                    case 39: 
+                        p.stop(player.directions.right);
+                        break;
+                    case 38:
+                        p.stop(player.directions.up);
+                        break;
+                    case 40:
+                        p.stop(player.directions.down);
+                        break;
+                }
+            });
+        },
+
+        bindToServer: function(){
+            
+        },
+        move: function(direction){
+            if(this.moving) return;
+            this.moving=true;
+            this.direction=direction;
+        },
+        stop: function(direction){
+            if(direction==this.direction){
+                this.moving=false;
+            }
+        },
+
+        update: function(timestep){
+            if(this.moving){
+                this.x += this.movement[this.direction].x * timestep;
+                this.y += this.movement[this.direction].y * timestep;
+                
+                //todo: collision detection here
+            }
+        }
+ 
+      }  
+    
+
 
       var Bomb = Class({
         x: 0,
@@ -198,16 +209,25 @@
         for (var i = 0; i < bombs.length; i++) {
           bombs[i].update();
         }
+        for(var i=0;i<players.length;i++){
+            players[i].update();    
+        }
       }
 
       function draw() {
         drawBackground();
         for (var i = 0; i < bombs.length; i++) {
-          bombs[i].draw();
+            bombs[i].draw();
+        }
+        for(var i=0;i<players.length;i++){
+            players[i].draw();    
         }
       }
 
       function start() {
+        players[0] = $.extend({},player);
+        players[0].bindToKeyboard();
+
         // This is where the magic begins, my friends
         var run = (function() {
           var loops = 0, skipTicks = 1000 / 30,
