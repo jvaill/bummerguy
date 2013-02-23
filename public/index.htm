@@ -57,16 +57,17 @@
         x: 0,
         y: 0,
 
-        initialize: function() {
+        initialize: function(tileX, tileY) {
+          this.x = tileX * TILE_WIDTH;
+          this.y = tileY * TILE_HEIGHT;
           bombs.push(this);
         },
 
         update: function() {
-          console.log('update');
         },
 
         draw: function() {
-
+          ctx.fillRect(this.x, this.y, TILE_WIDTH, TILE_HEIGHT);  
         }
       });
 
@@ -108,8 +109,8 @@
         }
       }
 
-      window.createBomb = function(x, y) {
-        new Bomb();
+      window.createBomb = function(tileX, tileY) {
+        new Bomb(tileX, tileY);
       }
 
       function update() {
