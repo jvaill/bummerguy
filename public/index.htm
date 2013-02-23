@@ -145,7 +145,10 @@
           map = null,
           background = null,
           bomberman = null,
-          interval = null;
+          interval = null,
+          bombermen = [],
+          interval = null,
+          bombs = [];
 
       // From: http://www.htmlgoodies.com/html5/tutorials/create-an-object-oriented-javascript-class-constructor.html#fbid=EYauP6cfQH6
       var Class = function(methods) {   
@@ -212,7 +215,7 @@
             for(var i=0;i < this.bombs.length;i++){
                 this.bombs[i].draw();
             }
-            if(this.alive) ctx.drawImage(bomberman, this.pos.x , this.pos.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT, this.x+this.graphics.x, this.y+this.graphics.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT);
+            if(this.alive) ctx.drawImage(bombermen[this.id], this.pos.x , this.pos.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT, this.x+this.graphics.x, this.y+this.graphics.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT);
 
         },
 
@@ -701,16 +704,16 @@
 
         // Load background
         background = new Image();
+        bomberman  = new Image();
+        bomberman2 = new Image();
+        bomberman3 = new Image();
+        bomberman4 = new Image();
         background.src = "images/background.png";
-
-        background.onload = function() {
-          bomberman = new Image();
-          bomberman.src = "images/bomberman.png";
-
-          bomberman.onload = function(){
-            
-          };
-        };
+        bomberman.src  = "images/bomberman.png";
+        bomberman2.src = "images/bomberman2.png";
+        bomberman3.src = "images/bomberman3.png";
+        bomberman4.src = "images/bomberman4.png";
+        bombermen.push(bomberman, bomberman2, bomberman3, bomberman4);
       }
 
       init();
