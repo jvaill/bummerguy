@@ -29,8 +29,8 @@
     $(function() {
       var TILE_WIDTH = 16;
       var TILE_HEIGHT = 16;
-      var CANVAS_WIDTH = 256;
-      var CANVAS_HEIGHT = 224 ;
+      var CANVAS_WIDTH = 240;
+      var CANVAS_HEIGHT = 208;
 
       var ctx = null;
       var background = null;
@@ -64,6 +64,31 @@
         var y = CANVAS_HEIGHT - TILE_HEIGHT;
         for (var x = 0; x < CANVAS_WIDTH; x += TILE_WIDTH) {
           ctx.drawImage(background, 0, 0, TILE_WIDTH, TILE_HEIGHT, x, y, TILE_WIDTH, TILE_HEIGHT);
+        }
+
+        // Draw left border
+        for (var y = 0; y < CANVAS_HEIGHT; y += TILE_HEIGHT) {
+          ctx.drawImage(background, 0, 0, TILE_WIDTH, TILE_HEIGHT, 0, y, TILE_WIDTH, TILE_HEIGHT);
+        }
+
+        // Draw right border
+        var x = CANVAS_WIDTH - TILE_WIDTH;
+        for (var y = 0; y < CANVAS_HEIGHT; y += TILE_HEIGHT) {
+          ctx.drawImage(background, 0, 0, TILE_WIDTH, TILE_HEIGHT, x, y, TILE_WIDTH, TILE_HEIGHT);
+        }
+
+        // Draw grass
+        for (var y = TILE_HEIGHT; y < CANVAS_HEIGHT - TILE_HEIGHT; y += TILE_HEIGHT) {
+          for (var x = TILE_WIDTH; x < CANVAS_WIDTH - TILE_WIDTH; x += TILE_WIDTH) {
+            ctx.drawImage(background, TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT, x, y, TILE_WIDTH, TILE_HEIGHT);
+          }
+        }
+
+        // Draw inside indestructible blocks
+        for (var y = TILE_HEIGHT * 2; y < CANVAS_HEIGHT - TILE_HEIGHT * 2; y += TILE_HEIGHT * 2) {
+          for (var x = TILE_WIDTH * 2; x < CANVAS_WIDTH - TILE_WIDTH * 2; x += TILE_WIDTH * 2) {
+            ctx.drawImage(background, 0, 0, TILE_WIDTH, TILE_HEIGHT, x, y, TILE_WIDTH, TILE_HEIGHT);
+          }
         }
       }
 
