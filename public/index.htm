@@ -97,34 +97,48 @@
       var ctx = null;
 
     $(function() {
+      var FPS = 30;
       var TILE_WIDTH = 16;
       var TILE_HEIGHT = 16;
       var CANVAS_WIDTH = 240;
       var CANVAS_HEIGHT = 208;
 
+      var interval = null;
+      var ctx = null;
       var background = null;
-    
+      var bombs = [];
 
-      function init() {
-        // Prepare canvas
-        $('canvas').attr('width', CANVAS_WIDTH).attr('height', CANVAS_HEIGHT);
-        ctx = $('canvas').get(0).getContext('2d');
-        // Retro-ified
-        ctx.imageSmoothingEnabled = false;
-        ctx.mozImageSmoothingEnabled = false;
-        ctx.webkitImageSmoothingEnabled = false;
+      // From: http://www.htmlgoodies.com/html5/tutorials/create-an-object-oriented-javascript-class-constructor.html#fbid=EYauP6cfQH6
+      var Class = function(methods) {   
+        var klass = function() {    
+          this.initialize.apply(this, arguments);          
+        };  
 
-        ctx.fillText("hey", 100, 100);
+        for (var property in methods) { 
+          klass.prototype[property] = methods[property];
+        }
+              
+        if (!klass.prototype.initialize) klass.prototype.initialize = function(){};      
 
-        // Load background
-        background = new Image();
-        background.src = "images/background.png";
-        background.onload = function() {
-          drawBackground();
-        };
+        return klass;    
+      };
 
-        
-      }
+      var Bomb = Class({
+        x: 0,
+        y: 0,
+
+        initialize: function() {
+          bombs.push(this);
+        },
+
+        update: function() {
+          console.log('update');
+        },
+
+        draw: function() {
+
+        }
+      });
 
       function drawBackground() {
         // Draw top border
@@ -162,6 +176,63 @@
             ctx.drawImage(background, 0, 0, TILE_WIDTH, TILE_HEIGHT, x, y, TILE_WIDTH, TILE_HEIGHT);
           }
         }
+      }
+
+      window.createBomb = function(x, y) {
+        new Bomb();
+      }
+
+      function update() {
+        for (var i = 0; i < bombs.length; i++) {
+          bombs[i].update();
+        }
+      }
+
+      function draw() {
+        drawBackground();
+        for (var i = 0; i < bombs.length; i++) {
+          bombs[i].draw();
+        }
+      }
+
+      function start() {
+        // This is where the magic begins, my friends
+        var run = (function() {
+          var loops = 0, skipTicks = 1000 / 30,
+              maxFrameSkip = 10,
+              nextGameTick = (new Date).getTime();
+          
+          return function() {
+            loops = 0;
+            
+            while ((new Date).getTime() > nextGameTick && loops < maxFrameSkip) {
+              update();
+              nextGameTick += skipTicks;
+              loops++;
+            }
+            
+            draw();
+          };
+        })();
+
+        interval = setInterval(run, 0);
+      }
+
+      function init() {
+        // Prepare canvas
+        $('canvas').attr('width', CANVAS_WIDTH).attr('height', CANVAS_HEIGHT);
+        ctx = $('canvas').get(0).getContext('2d');
+        // Retro-ified
+        ctx.imageSmoothingEnabled = false;
+        ctx.mozImageSmoothingEnabled = false;
+        ctx.webkitImageSmoothingEnabled = false;
+
+        // Load background
+        background = new Image();
+        background.src = "images/background.png";
+        background.onload = function() {
+          start();
+        };
       }
 
       init();
