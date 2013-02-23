@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="http://code.createjs.com/createjs-2013.02.12.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
 
   <style type="text/css">
@@ -40,13 +39,21 @@
       var MAP_WIDTH = CANVAS_WIDTH / TILE_WIDTH;
       var MAP_HEIGHT = CANVAS_HEIGHT / TILE_HEIGHT;
       var BOMBERMAN_HEIGHT = 25;
-      var BOMBERMAN_WIDTH = 20;
+      var BOMBERMAN_WIDTH = 18;
       var BOMBERMAN_POS_X = 0;
       var BOMBERMAN_POS_Y = 35;
       var START_X = TILE_WIDTH;
       var START_Y = TILE_HEIGHT;
       var TICKS_PER_FRAME = 15;
       var BOMB_FRAMES = 2;
+      var BOMBERMAN_FRAMES = 5;
+      var Y_COORDS_BOMBERMAN = [0, 75, 110, 35]; // Left, Right, Top, Bottom
+      var X_COORDS_BOMBERMAN = [
+        [150, 128, 106, 84, 64, 40, 22, 2],
+        [2, 22, 46, 70, 92, 110, 130, 150],
+        [2, 22, 46, 70, 90, 110, 130, 150],
+        [2, 22, 46, 70, 92, 110, 130, 150]
+      ]
 
 /* ==== Socket Stuff ==== */
       window.socket = io.connect();
@@ -99,13 +106,13 @@
         graphics: {x:-8,y:-16,w:16,h:24},
         movement : [{x: -100, y:0},{x: 100,y:0},{x:0,y:-100},{x:0,y:100}],
         pos: {x: BOMBERMAN_POS_X, y: BOMBERMAN_POS_Y},
+        currentFrame: 0,
 
         draw: function(){
             for(var i=0;i < this.bombs.length;i++){
                 this.bombs[i].draw();
             }
             ctx.drawImage(bomberman, this.pos.x , this.pos.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT, this.x+this.graphics.x, this.y+this.graphics.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT);
-
         },
 
         bindToKeyboard: function(){
@@ -157,6 +164,7 @@
         stop: function(direction){
             if(direction==this.direction){
                 this.moving=false;
+                this.currentFrame = 0;
             }
         },
 
@@ -167,7 +175,11 @@
             if(this.moving){
                 this.x += this.movement[this.direction].x * timestep;
                 this.y += this.movement[this.direction].y * timestep;
-                
+                this.pos.y = Y_COORDS_BOMBERMAN[this.direction];
+            
+                this.currentFrame += 1;
+                this.currentFrame = this.currentFrame % BOMBERMAN_FRAMES;
+                this.pos.x = X_COORDS_BOMBERMAN[this.direction][this.currentFrame];
                 //todo: collision detection here
             }
         },
@@ -259,7 +271,7 @@
               ctx.drawImage(
                 this.splosion_img, 
                 this.splosion.middle.x,
-                this.splosion.middle.y - (this.splosion.size.y * (this.tileY - y)),
+                this.splosion.middle.y - (this.splosion.size.x * (this.tileY - y)),
                 this.splosion.size.y,
                 this.splosion.size.x,
                 this.tileX*TILE_WIDTH,
