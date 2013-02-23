@@ -15,30 +15,63 @@
       margin-left: -360px;
       margin-top: -312px;
       background-color: #666;
+
+      /* Retro-ified */
+      image-rendering: optimizeSpeed;
+      image-rendering:-o-crisp-edges;
+      image-rendering:-webkit-optimize-contrast;
+      -ms-interpolation-mode: nearest-neighbor;
     }
   </style>
 
   <script src="http://code.jquery.com/jquery-1.9.1.min.js" type="text/javascript"></script>
   <script type="text/javascript">
     $(function() {
-      var ctx = $('canvas').get(0).getContext('2d');
-      ctx.fillText("hey", 100, 100);
+      var TILE_WIDTH = 16;
+      var TILE_HEIGHT = 16;
+      var CANVAS_WIDTH = 256;
+      var CANVAS_HEIGHT = 224 ;
 
-      function drawBackground() {
-        
+      var ctx = null;
+      var background = null;
+
+      function init() {
+        // Prepare canvas
+        $('canvas').attr('width', CANVAS_WIDTH).attr('height', CANVAS_HEIGHT);
+        ctx = $('canvas').get(0).getContext('2d');
+        // Retro-ified
+        ctx.imageSmoothingEnabled = false;
+        ctx.mozImageSmoothingEnabled = false;
+        ctx.webkitImageSmoothingEnabled = false;
+
+        ctx.fillText("hey", 100, 100);
+
+        // Load background
+        background = new Image();
+        background.src = "images/background.png";
+        background.onload = function() {
+          drawBackground();
+        };
       }
 
-      // Load background
-      var background = new Image();
-      background.src = "background.png";
-      background.onload = function() {
-        drawBackground();
-      };
+      function drawBackground() {
+        // Draw top border
+        for (var x = 0; x < CANVAS_WIDTH; x += TILE_WIDTH) {
+          ctx.drawImage(background, 0, 0, TILE_WIDTH, TILE_HEIGHT, x, 0, TILE_WIDTH, TILE_HEIGHT);
+        }
+
+        // Draw bottom border
+        var y = CANVAS_HEIGHT - TILE_HEIGHT;
+        for (var x = 0; x < CANVAS_WIDTH; x += TILE_WIDTH) {
+          ctx.drawImage(background, 0, 0, TILE_WIDTH, TILE_HEIGHT, x, y, TILE_WIDTH, TILE_HEIGHT);
+        }
+      }
+
+      init();
     });
   </script>
 </head>
 <body>
-  <canvas width="720" height="624">
-  </canvas>
+  <canvas></canvas>
 </body>
 </html>
