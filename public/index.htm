@@ -2,6 +2,8 @@
 <html>
 <head>
   <script src="http://code.createjs.com/createjs-2013.02.12.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+
   <style type="text/css">
     body {
       background-color: #EEE;
@@ -27,6 +29,7 @@
 
   <script src="http://code.jquery.com/jquery-1.9.1.min.js" type="text/javascript"></script>
   <script type="text/javascript">
+
       
     $(function() {
       var FPS = 30;
@@ -37,13 +40,22 @@
       var MAP_WIDTH = CANVAS_WIDTH / TILE_WIDTH;
       var MAP_HEIGHT = CANVAS_HEIGHT / TILE_HEIGHT;
       var BOMBERMAN_HEIGHT = 25;
-      var BOMBERMAN_WIDTH = 14;
-      var BOMBERMAN_POS_X = 34;
-      var BOMBERMAN_POS_Y = 46;
+      var BOMBERMAN_WIDTH = 20;
+      var BOMBERMAN_POS_X = 0;
+      var BOMBERMAN_POS_Y = 35;
       var START_X = TILE_WIDTH;
       var START_Y = TILE_HEIGHT;
       var TICKS_PER_FRAME = 15;
       var BOMB_FRAMES = 2;
+
+/* ==== Socket Stuff ==== */
+      window.socket = io.connect();
+      socket.on('id assign', function (data) {
+        console.log("connected, my id is ",data.id);
+      }).on('reset', function(data){
+        console.log("reset, players:",data.id);
+      })
+
 
       var TILES = {
         0: {x: TILE_WIDTH, y: TILE_HEIGHT},
@@ -86,12 +98,13 @@
         collision: { x: -8, y: -8, w: 16, h: 16},
         graphics: {x:-8,y:-16,w:16,h:24},
         movement : [{x: -100, y:0},{x: 100,y:0},{x:0,y:-100},{x:0,y:100}],
-        
+        pos: {x: BOMBERMAN_POS_X, y: BOMBERMAN_POS_Y},
+
         draw: function(){
             for(var i=0;i < this.bombs.length;i++){
                 this.bombs[i].draw();
             }
-            ctx.drawImage(bomberman, BOMBERMAN_POS_X , BOMBERMAN_POS_Y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT, this.x+this.graphics.x, this.y+this.graphics.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT);
+            ctx.drawImage(bomberman, this.pos.x , this.pos.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT, this.x+this.graphics.x, this.y+this.graphics.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT);
 
         },
 
@@ -205,7 +218,6 @@
         },
         bomb: function(){
             if(this.bombs.length>=this.maxBombs) return;
-            
             new Bomb(this);
         }
       }
@@ -223,12 +235,16 @@
         isExploded: false,
         owner: null,
         bomb_img: null,
+        splosion_img: null,
+        splosion: { size: {x: 17, y:21}, middle: {x:362, y:29} },
 
         initialize: function(owner) {
           this.tileX = Math.floor(owner.x / TILE_WIDTH);
           this.tileY = Math.floor(owner.y / TILE_HEIGHT);
           this.bomb_img = new Image();
           this.bomb_img.src = "images/bomb.png";
+          this.splosion_img = new Image;
+          this.splosion_img.src = "images/splosion.png";
           this.owner = owner;
           this.owner.bombs.push(this);
         },
@@ -251,30 +267,66 @@
           }
           else {
             // Left flame
-            for (var x = this.tileX; x >= this.tileX - 2; x--) {
+            for (var x = this.tileX - 1; x >= this.tileX - 2; x--) {
               if (map[this.tileY][x] != 0)
                 break;
-              ctx.fillRect(x * TILE_WIDTH, this.tileY * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+              ctx.drawImage(
+                this.splosion_img, 
+                this.splosion.middle.x - (this.splosion.size.x * (this.tileX - x)),
+                this.splosion.middle.y,
+                this.splosion.size.x,
+                this.splosion.size.y,
+                x*TILE_WIDTH,
+                this.tileY*TILE_HEIGHT,
+                TILE_WIDTH, TILE_HEIGHT
+                )
             }
 
             // Right flame
-            for (var x = this.tileX; x <= this.tileX + 2; x++) {
+            for (var x = this.tileX + 1; x <= this.tileX + 2; x++) {
               if (map[this.tileY][x] != 0)
                 break;
-              ctx.fillRect(x * TILE_WIDTH, this.tileY * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+              ctx.drawImage(
+                this.splosion_img, 
+                this.splosion.middle.x + (this.splosion.size.x * (x - this.tileX)),
+                this.splosion.middle.y,
+                this.splosion.size.x,
+                this.splosion.size.y,
+                x*TILE_WIDTH,
+                this.tileY*TILE_HEIGHT,
+                TILE_WIDTH, TILE_HEIGHT
+              )            
             }
             // Top flame
-            for (var y = this.tileY; y >= this.tileY - 2; y--) {
+            for (var y = this.tileY - 1; y >= this.tileY - 2; y--) {
               if (map[y][this.tileX] != 0)
                 break;
-              ctx.fillRect(this.tileX * TILE_WIDTH, y * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+              ctx.drawImage(
+                this.splosion_img, 
+                this.splosion.middle.x,
+                this.splosion.middle.y - (this.splosion.size.y * (this.tileY - y)),
+                this.splosion.size.y,
+                this.splosion.size.x,
+                this.tileX*TILE_WIDTH,
+                y*TILE_HEIGHT,
+                TILE_WIDTH, TILE_HEIGHT
+              )   
             }
 
             // Bottom flame
             for (var y = this.tileY; y <= this.tileY + 2; y++) {
               if (map[y][this.tileX] != 0)
                 break;
-              ctx.fillRect(this.tileX * TILE_WIDTH, y * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+              ctx.drawImage(
+                this.splosion_img, 
+                this.splosion.middle.x,
+                this.splosion.middle.y + (this.splosion.size.x * (y - this.tileY)),
+                this.splosion.size.y,
+                this.splosion.size.x,
+                this.tileX*TILE_WIDTH,
+                y*TILE_HEIGHT,
+                TILE_WIDTH, TILE_HEIGHT
+              )   
             }
           }
         }
@@ -362,17 +414,18 @@
           return function() {
             loops = 0;
             
-            while ((new Date).getTime() > nextGameTick && loops < maxFrameSkip) {
+            //while ((new Date).getTime() > nextGameTick && loops < maxFrameSkip) {
               update();
-              nextGameTick += skipTicks;
-              loops++;
-            }
+            //  nextGameTick += skipTicks;
+            //  loops++;
+           // }
             
+            //if(loops>0) 
             draw();
           };
         })();
 
-        interval = setInterval(run, 0);
+        interval = setInterval(run, 1000/30);
       }
 
       function init() {
@@ -393,11 +446,11 @@
           bomberman.src = "images/bomberman.png";
 
           bomberman.onload = function(){
+            
             generateMap();
             start();
           };
         };
-
       }
 
       init();

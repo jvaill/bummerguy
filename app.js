@@ -30,6 +30,37 @@ app.configure('development', function(){
 app.get('/', routes.index);
 app.get('/users', user.list);
 
-http.createServer(app).listen(app.get('port'), function(){
+var server = http.createServer(app);
+server.listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
+});
+
+//server side using socket.io
+io = require('socket.io').listen(server);
+
+var id = 0;
+io.sockets.on('connection',function(socket){
+  if(id==4){
+    socket.emit('full');
+    return;
+  }
+  socket.emit('id assignment', { 'id': id });
+  socket.broadcast.emit('reset',{'id':id});
+  id++;
+
+  socket.on('player move', function (data) {
+    socket.broadcast.emit('player move',data);
+  });
+
+  socket.on('player stop', function (data) {
+    socket.broadcast.emit('player stop',data);
+  });
+
+  socket.on('player bomb', function (data) {
+    socket.broadcast.emit('player bomb',data);
+  });
+
+  socket.on('player die', function (data) {
+    socket.broadcast.emit('player die',data);
+  });
 });
