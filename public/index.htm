@@ -40,9 +40,9 @@
       var MAP_WIDTH = CANVAS_WIDTH / TILE_WIDTH;
       var MAP_HEIGHT = CANVAS_HEIGHT / TILE_HEIGHT;
       var BOMBERMAN_HEIGHT = 25;
-      var BOMBERMAN_WIDTH = 14;
-      var BOMBERMAN_POS_X = 34;
-      var BOMBERMAN_POS_Y = 46;
+      var BOMBERMAN_WIDTH = 20;
+      var BOMBERMAN_POS_X = 0;
+      var BOMBERMAN_POS_Y = 35;
       var START_X = TILE_WIDTH;
       var START_Y = TILE_HEIGHT;
       var TICKS_PER_FRAME = 15;
@@ -123,11 +123,13 @@
           players[id].y = startPositions[id].y;
         },
         
+        pos: {x: BOMBERMAN_POS_X, y: BOMBERMAN_POS_Y},
+
         draw: function(){
             for(var i=0;i < this.bombs.length;i++){
                 this.bombs[i].draw();
             }
-            ctx.drawImage(bomberman, BOMBERMAN_POS_X , BOMBERMAN_POS_Y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT, this.x+this.graphics.x, this.y+this.graphics.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT);
+            ctx.drawImage(bomberman, this.pos.x , this.pos.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT, this.x+this.graphics.x, this.y+this.graphics.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT);
 
         },
 
@@ -206,15 +208,59 @@
                 this.bombs[i].update();
             }
             if(this.moving){
-                this.x += this.movement[this.direction].x * timestep;
-                this.y += this.movement[this.direction].y * timestep;
-                
-                //todo: collision detection here
+              var newX = this.x + this.movement[this.direction].x * timestep;
+              var newY = this.y + this.movement[this.direction].y * timestep;
+
+              var collisionBounds = {
+                top: newY + this.collision.y,
+                right: newX + this.collision.x + this.collision.w,
+                bottom: newY + this.collision.y + this.collision.h,
+                left: newX + this.collision.x
+              };
+
+              if (this.direction == this.directions.up) {
+                var tileY = Math.floor(collisionBounds.top / TILE_HEIGHT);
+                var topLeftTile = map[tileY][Math.floor((collisionBounds.left + 3) / TILE_WIDTH)];
+                var topRightTile = map[tileY][Math.floor((collisionBounds.right - 3) / TILE_WIDTH)];
+
+                if (topLeftTile == 1 || topRightTile == 1) {
+                  newY = tileY * TILE_HEIGHT + TILE_HEIGHT + this.collision.y + this.collision.h;
+                }
+              }
+              else if (this.direction == this.directions.right) {
+                var tileX = Math.floor(collisionBounds.right / TILE_WIDTH);
+                var rightTopTile = map[Math.floor((collisionBounds.top + 3) / TILE_HEIGHT)][tileX];
+                var rightBottomTile = map[Math.floor((collisionBounds.bottom - 3) / TILE_HEIGHT)][tileX];
+
+                if (rightTopTile == 1 || rightBottomTile == 1) {
+                  newX = tileX * TILE_WIDTH + this.collision.x;
+                }
+              }
+              else if (this.direction == this.directions.down) {
+                var tileY = Math.floor(collisionBounds.bottom / TILE_HEIGHT);
+                var bottomLeftTile = map[tileY][Math.floor((collisionBounds.left + 3) / TILE_HEIGHT)];
+                var bottomRightTile = map[tileY][Math.floor((collisionBounds.right - 3) / TILE_HEIGHT)];
+
+                if (bottomLeftTile == 1 || bottomRightTile == 1) {
+                  newY = tileY * TILE_HEIGHT + this.collision.y;
+                }
+              }
+              else if (this.direction == this.directions.left) {
+                var tileX = Math.floor(collisionBounds.left / TILE_WIDTH);
+                var leftTopTile = map[Math.floor((collisionBounds.top + 3) / TILE_HEIGHT)][tileX];
+                var leftBottomTile = map[Math.floor((collisionBounds.bottom - 3) / TILE_HEIGHT)][tileX];
+
+                if (leftTopTile == 1 || leftBottomTile == 1) {
+                  newX = tileX * TILE_WIDTH + TILE_WIDTH + this.collision.x + this.collision.w;
+                }
+              }
+
+              this.x = newX;
+              this.y = newY;
             }
         },
         bomb: function(){
             if(this.bombs.length>=this.maxBombs) return;
-            
             new Bomb(this);
         }
       }
@@ -264,7 +310,7 @@
           }
           else {
             // Left flame
-            for (var x = this.tileX; x >= this.tileX - 2; x--) {
+            for (var x = this.tileX - 1; x >= this.tileX - 2; x--) {
               if (map[this.tileY][x] != 0)
                 break;
               ctx.drawImage(
@@ -280,7 +326,7 @@
             }
 
             // Right flame
-            for (var x = this.tileX; x <= this.tileX + 2; x++) {
+            for (var x = this.tileX + 1; x <= this.tileX + 2; x++) {
               if (map[this.tileY][x] != 0)
                 break;
               ctx.drawImage(
@@ -295,7 +341,7 @@
               )            
             }
             // Top flame
-            for (var y = this.tileY; y >= this.tileY - 2; y--) {
+            for (var y = this.tileY - 1; y >= this.tileY - 2; y--) {
               if (map[y][this.tileX] != 0)
                 break;
               ctx.drawImage(
@@ -311,7 +357,7 @@
             }
 
             // Bottom flame
-            for (var y = this.tileY + 1; y <= this.tileY + 2; y++) {
+            for (var y = this.tileY; y <= this.tileY + 2; y++) {
               if (map[y][this.tileX] != 0)
                 break;
               ctx.drawImage(
@@ -446,7 +492,6 @@
             
           };
         };
-
       }
 
       init();
