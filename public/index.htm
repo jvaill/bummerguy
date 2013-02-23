@@ -69,6 +69,8 @@
         x: 24,
         y: 24,
         direction: 0,
+        bombs: [],
+        maxBombs: 1,
         directions: { left: 0, right: 1, up: 2, down: 3},
         moving: false,
         collision: { x: -8, y: -8, w: 16, h: 16},
@@ -76,6 +78,9 @@
         movement : [{x: -100, y:0},{x: 100,y:0},{x:0,y:-100},{x:0,y:100}],
         
         draw: function(){
+            for(var i=0;i < this.bombs.length;i++){
+                this.bombs[i].draw();
+            }
             ctx.drawImage(bomberman, 34 , 46, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT, this.x+this.graphics.x, this.y+this.graphics.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT);
 
         },
@@ -95,6 +100,9 @@
                         break;
                     case 40:
                         p.move(player.directions.down);
+                        break;
+                    case 32: 
+                        p.bomb();
                         break;
                 }
             });
@@ -120,7 +128,6 @@
             
         },
         move: function(direction){
-            if(this.moving) return;
             this.moving=true;
             this.direction=direction;
         },
@@ -131,12 +138,20 @@
         },
 
         update: function(timestep){
+            for(var i=0;i < this.bombs.length;i++){
+                this.bombs[i].update();
+            }
             if(this.moving){
                 this.x += this.movement[this.direction].x * timestep;
                 this.y += this.movement[this.direction].y * timestep;
                 
                 //todo: collision detection here
             }
+        },
+        bomb: function(){
+            if(this.bombs.length>=this.maxBombs) return;
+            
+            new Bomb(this);
         }
  
       }  
@@ -145,7 +160,7 @@
 
       var Bomb = Class({
         TIME_TILL_EXPLODE: 2,
-        TIME_TILL_DESTROY: 5,
+        TIME_TILL_DESTROY: 2.5,
         x: 0,
         y: 0,
         width: 16,
@@ -154,11 +169,13 @@
         pos_y: 0,
         curTicks: 0,
         isExploded: false,
+        owner: null,
 
-        initialize: function(tileX, tileY) {
-          this.x = tileX * TILE_WIDTH;
-          this.y = tileY * TILE_HEIGHT;
-          bombs.push(this);
+        initialize: function(owner) {
+          this.x = Math.floor(owner.x/16)*16;
+          this.y = Math.floor(owner.y/16)*16;
+          this.owner = owner;
+          this.owner.bombs.push(this);
         },
 
         update: function() {
@@ -167,8 +184,8 @@
             this.isExploded = true;
           }
           else if (this.curTicks == this.TIME_TILL_DESTROY * FPS) {
-            var idx = bombs.indexOf(this);
-            bombs.splice(idx, 1);
+            var idx = this.owner.bombs.indexOf(this);
+            this.owner.bombs.splice(idx, 1);
           }
         },
 
@@ -237,33 +254,22 @@
         }
       }
 
-      function drawBomberman(x, y){
-        // Draw bomberman
-        ctx.drawImage(bomberman, BOMBERMAN_POS_X , BOMBERMAN_POS_Y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT, x, y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT);
-      }
       
       window.createBomb = function(tileX, tileY) {
         new Bomb(tileX, tileY);
       }
 
       function update() {
-        for (var i = 0; i < bombs.length; i++) {
-          bombs[i].update();
-        }
         for(var i=0;i<players.length;i++){
-            players[i].update(1.0/30);    
+            players[i].update(1.0/FPS);    
         }
       }
 
       function draw() {
         drawBackground();
-        for (var i = 0; i < bombs.length; i++) {
-            bombs[i].draw();
-        }
         for(var i=0;i<players.length;i++){
             players[i].draw();    
         }
-//        drawBomberman(START_X, START_Y);
       }
 
       function start() {
