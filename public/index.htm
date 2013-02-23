@@ -94,13 +94,13 @@
         var message = $('#message').val();
         $('#message').val('');
         $('#messages').append('<li><strong>You:</strong> ' + message + '</li>');
+        window.socket.emit('message', message);
         return false;
       });
 
 /* ==== Socket Stuff ==== */
       window.socket = io.connect();
       socket.on('message', function (data) {
-        alert(data);
         $('#messages').append('<li><strong>Them:</strong> ' + data + '</li>');
       });
       socket.on('id assignment', function (data) {
