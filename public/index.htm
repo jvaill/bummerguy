@@ -144,12 +144,12 @@
         maxBombs: 20,
         directions: { left: 0, right: 1, up: 2, down: 3},
         moving: false,
-        collision: { x: -8, y: -8, w: 16, h: 16},
+        collision: { x: -7, y: -7, w: 15, h: 15},
         graphics: {x:-8,y:-16,w:16,h:24},
         movement : [{x: -100, y:0},{x: 100,y:0},{x:0,y:-100},{x:0,y:100}],
 
         construct: function(id){
-          players[id] = $.extend({},player);
+          players[id] = $.extend(true,{},player);
           players[id].id = id;
           players[id].x = startPositions[id].x;
           players[id].y = startPositions[id].y;
@@ -251,14 +251,6 @@
             for(var i=0;i < this.bombs.length;i++){
                 this.bombs[i].update();
             }
-            /*if(myId == this.id && this.lastUpdate < (new Date()).getTime()-500){
-                this.lastUpdate = (new Date()).getTime();
-                if(this.moving){
-                    socket.emit('player move',{'x':this.x,'y':this.y,'direction':this.direction,'id':this.id});
-                }else{
-                    socket.emit('player stop',{'x':this.x,'y':this.y,'direction':this.direction,'id':this.id});
-                }
-            } */
 
             if(this.moving){
                 var newX = this.x + this.movement[this.direction].x * timestep;
@@ -268,7 +260,6 @@
                 this.currentFrame += 1;
                 this.currentFrame = this.currentFrame % BOMBERMAN_FRAMES;
                 this.pos.x = X_COORDS_BOMBERMAN[this.direction][this.currentFrame];
-                //todo: collision detection here
 
               // Collision detection follows, I can't believe this even works
 
@@ -362,7 +353,7 @@
 
       var Bomb = Class({
         TIME_TILL_EXPLODE: 4,
-        TIME_TILL_DESTROY: 5.5,
+        TIME_TILL_DESTROY: 4.5,
         tileX: 0,
         tileY: 0,
         width: 16,
@@ -375,6 +366,7 @@
         bomb_img: null,
         splosion_img: null,
         splosion: { size: {x: 17, y:21}, middle: {x:362, y:29} },
+        splosionData: [],
 
         initialize: function(owner) {
           this.tileX = Math.floor(owner.x / TILE_WIDTH);
@@ -394,22 +386,51 @@
             //check if it killed our player
             if(players[myId].alive==true){
                 var explosionTiles = [];
+                this.splosionData = [this.tileX-1,null,this.tileX+1,null,this.tileY-1,null, this.tileY,null];
                 for(var x= this.tileX; x>= this.tileX -2; x--){
-                    if (map[this.tileY][x] != 0) break;
-                    if(rect_collision(players[myId].getRect(),[x*16,this.tileY*16,16,16])) players[myId].die();
+                    if (map[this.tileY][x] != 0){
+                            if(map[this.tileY][x] > 1){
+                                map[this.tileY][x]=0;
+                                this.splosionData[1] = x;
+                            }
+                            break;
+                    }
+                    this.splosionData[1] = x;
+                    if(rect_collision(players[myId].getRect(),[x*16+2,this.tileY*16+2,12,12])) players[myId].die();
                 }
                 for (var x = this.tileX + 1; x <= this.tileX + 2; x++) {
-                    if (map[this.tileY][x] != 0) break;
-                    if(rect_collision(players[myId].getRect(),[x*16,this.tileY*16,16,16])) players[myId].die();
+                    if (map[this.tileY][x] != 0){
+                        if(map[this.tileY][x]>1){
+                             map[this.tileY][x] = 0;
+                            this.splosionData[3] = x;
+                        }
+                        break;
+                    }
+                    this.splosionData[3] = x;
+                    if(rect_collision(players[myId].getRect(),[x*16+2,this.tileY*16+2,12,12])) players[myId].die();
                 }
                 for (var y = this.tileY - 1; y >= this.tileY - 2; y--) {
-                    if (map[y][this.tileX] != 0) break;
-                    if(rect_collision(players[myId].getRect(),[this.tileY*16,y*16,16,16])) players[myId].die();
+                    if (map[y][this.tileX] != 0){
+                        if(map[y][this.tileX]>1){
+                            map[y][this.tileX] = 0;
+                            this.splosionData[5] = y;
+                        }
+                        break;
+                    }
+                    this.splosionData[5] = y;
+                    if(rect_collision(players[myId].getRect(),[this.tileY*16+2,y*16+2,12,12])) players[myId].die();
                 }
                     
                 for (var y = this.tileY; y <= this.tileY + 2; y++) {
-                    if (map[y][this.tileX] != 0) break
-                    if(rect_collision(players[myId].getRect(),[this.tileY*16,y*16,16,16])) players[myId].die();
+                    if (map[y][this.tileX] != 0){
+                        if(map[y][this.tileX]>1){
+                            map[y][this.tileX] = 0;
+                            this.splosionData[7] = y;
+                        }
+                        break;
+                    }
+                    this.splosionData[7] = y;
+                    if(rect_collision(players[myId].getRect(),[this.tileY*16-4,y*16-4,12,12])) players[myId].die();
                 }
             }
 
@@ -427,7 +448,7 @@
           }
           else {
             // Left flame
-            for (var x = this.tileX - 1; x >= this.tileX - 2; x--) {
+            for (var x = this.splosionData[0]; x >= this.splosionData[1]; x--) {
               if (map[this.tileY][x] != 0)
                 break;
               ctx.drawImage(
@@ -443,7 +464,7 @@
             }
 
             // Right flame
-            for (var x = this.tileX + 1; x <= this.tileX + 2; x++) {
+            for (var x = this.splosionData[2]; x <= this.splosionData[3]; x++) {
               if (map[this.tileY][x] != 0)
                 break;
               ctx.drawImage(
@@ -458,7 +479,7 @@
               )            
             }
             // Top flame
-            for (var y = this.tileY - 1; y >= this.tileY - 2; y--) {
+            for (var y = this.splosionData[4]; y >= this.splosionData[5]; y--) {
               if (map[y][this.tileX] != 0)
                 break;
               ctx.drawImage(
@@ -474,7 +495,7 @@
             }
 
             // Bottom flame
-            for (var y = this.tileY; y <= this.tileY + 2; y++) {
+            for (var y = this.splosionData[6]; y <= this.splosionData[7]; y++) {
               if (map[y][this.tileX] != 0)
                 break;
               ctx.drawImage(
@@ -492,7 +513,7 @@
         }
       });
 
-      function generateMap() {
+      function generateMap(seed) {
         map = [];
         for (var i = 0; i < MAP_HEIGHT; i++) {
           map[i] = [];
