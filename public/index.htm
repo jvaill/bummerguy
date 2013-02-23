@@ -47,15 +47,32 @@
       var START_Y = TILE_HEIGHT;
       var TICKS_PER_FRAME = 15;
       var BOMB_FRAMES = 2;
+      var startPositions = [{x:(1+.5)*16,y:(1+.5)*16},{x:(13+0.5)*16,y:(1+0.5)*16},{x:(1+0.5)*16,y:(11+0.5)*16},{x:(13+.5)*16,y:(11+0.5)*16}];
+      window.myId = null;
 
 /* ==== Socket Stuff ==== */
       window.socket = io.connect();
-      socket.on('id assign', function (data) {
+      socket.on('id assignment', function (data) {
         console.log("connected, my id is ",data.id);
+        myId = data.id;
+        for(var i=0; i<=data.id;i++){
+            player.construct(i);
+        }
+        generateMap();
+        start();
       }).on('reset', function(data){
         console.log("reset, players:",data.id);
-      })
-
+        players = [];
+        for(var i=0;i<=data.id; i++){
+            player.construct(i);
+        }
+        generateMap();
+        start();
+      }).on('player move',function(data){
+        players[data.id].serverMove(data);
+      }).on('player stop',function(data){
+        players[data.id].serverStop(data);
+      });
 
       var TILES = {
         0: {x: TILE_WIDTH, y: TILE_HEIGHT},
@@ -98,6 +115,13 @@
         collision: { x: -8, y: -8, w: 16, h: 16},
         graphics: {x:-8,y:-16,w:16,h:24},
         movement : [{x: -100, y:0},{x: 100,y:0},{x:0,y:-100},{x:0,y:100}],
+
+        construct: function(id){
+          players[id] = $.extend({},player);
+          players[id].id = id;
+          players[id].x = startPositions[id].x;
+          players[id].y = startPositions[id].y;
+        },
         
         draw: function(){
             for(var i=0;i < this.bombs.length;i++){
@@ -150,15 +174,33 @@
             
         },
         move: function(direction){
+            if(this.moving==false || this.direction!=direction){
+                socket.emit('player move',{'x':this.x,'y':this.y,'direction':direction,'id':this.id});
+            }
             this.moving=true;
             this.direction=direction;
+
+        },
+        serverMove: function(data){
+            this.x=data.x;
+            this.y=data.y;
+            this.direction = data.direction;
+            this.moving=true;
         },
         stop: function(direction){
+            if(this.moving==true || this.direction!=direction){
+                socket.emit('player stop',{'x':this.x,'y':this.y,'direction':direction,'id':this.id});
+            }
             if(direction==this.direction){
                 this.moving=false;
             }
         },
-
+        serverStop: function(data){
+            this.x=data.x;
+            this.y=data.y;
+            this.direction = data.direction;
+            this.moving=false;
+        },
         update: function(timestep){
             for(var i=0;i < this.bombs.length;i++){
                 this.bombs[i].update();
@@ -357,8 +399,8 @@
       }
 
       function start() {
-        players[0] = $.extend({},player);
-        players[0].bindToKeyboard();
+        clearInterval(interval);
+        players[myId].bindToKeyboard();
 
         // This is where the magic begins, my friends
         var run = (function() {
@@ -402,8 +444,6 @@
 
           bomberman.onload = function(){
             
-            generateMap();
-            start();
           };
         };
 
