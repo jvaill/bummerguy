@@ -152,10 +152,55 @@
                 this.bombs[i].update();
             }
             if(this.moving){
-                this.x += this.movement[this.direction].x * timestep;
-                this.y += this.movement[this.direction].y * timestep;
-                
-                //todo: collision detection here
+              var newX = this.x + this.movement[this.direction].x * timestep;
+              var newY = this.y + this.movement[this.direction].y * timestep;
+
+              var collisionBounds = {
+                top: newY + this.collision.y,
+                right: newX + this.collision.x + this.collision.w,
+                bottom: newY + this.collision.y + this.collision.h,
+                left: newX + this.collision.x
+              };
+
+              if (this.direction == this.directions.up) {
+                var tileY = Math.floor(collisionBounds.top / TILE_HEIGHT);
+                var topLeftTile = map[tileY][Math.floor((collisionBounds.left + 3) / TILE_WIDTH)];
+                var topRightTile = map[tileY][Math.floor((collisionBounds.right - 3) / TILE_WIDTH)];
+
+                if (topLeftTile == 1 || topRightTile == 1) {
+                  newY = tileY * TILE_HEIGHT + TILE_HEIGHT + this.collision.y + this.collision.h;
+                }
+              }
+              else if (this.direction == this.directions.right) {
+                var tileX = Math.floor(collisionBounds.right / TILE_WIDTH);
+                var rightTopTile = map[Math.floor((collisionBounds.top + 3) / TILE_HEIGHT)][tileX];
+                var rightBottomTile = map[Math.floor((collisionBounds.bottom - 3) / TILE_HEIGHT)][tileX];
+
+                if (rightTopTile == 1 || rightBottomTile == 1) {
+                  newX = tileX * TILE_WIDTH + this.collision.x;
+                }
+              }
+              else if (this.direction == this.directions.down) {
+                var tileY = Math.floor(collisionBounds.bottom / TILE_HEIGHT);
+                var bottomLeftTile = map[tileY][Math.floor((collisionBounds.left + 3) / TILE_HEIGHT)];
+                var bottomRightTile = map[tileY][Math.floor((collisionBounds.right - 3) / TILE_HEIGHT)];
+
+                if (bottomLeftTile == 1 || bottomRightTile == 1) {
+                  newY = tileY * TILE_HEIGHT + this.collision.y;
+                }
+              }
+              else if (this.direction == this.directions.left) {
+                var tileX = Math.floor(collisionBounds.left / TILE_WIDTH);
+                var leftTopTile = map[Math.floor((collisionBounds.top + 3) / TILE_HEIGHT)][tileX];
+                var leftBottomTile = map[Math.floor((collisionBounds.bottom - 3) / TILE_HEIGHT)][tileX];
+
+                if (leftTopTile == 1 || leftBottomTile == 1) {
+                  newX = tileX * TILE_WIDTH + TILE_WIDTH + this.collision.x + this.collision.w;
+                }
+              }
+
+              this.x = newX;
+              this.y = newY;
             }
         },
         bomb: function(){
