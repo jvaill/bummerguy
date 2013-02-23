@@ -124,6 +124,7 @@
       }).on('player stop',function(data){
         players[data.id].serverStop(data);
       }).on('player bomb',function(data){
+        console.log("placing bomb",data);
         players[data.id].serverBomb(data);
       }).on('disconnect',function(data){
         socket.disconnect();
@@ -144,8 +145,7 @@
           map = null,
           background = null,
           bomberman = null,
-          interval = null,
-          bombs = [];
+          interval = null;
 
       // From: http://www.htmlgoodies.com/html5/tutorials/create-an-object-oriented-javascript-class-constructor.html#fbid=EYauP6cfQH6
       var Class = function(methods) {   
@@ -186,13 +186,14 @@
         y: 24,
         direction: 0,
         bombs: [],
-        maxBombs: 20,
+        maxBombs: 1,
         directions: { left: 0, right: 1, up: 2, down: 3},
         moving: false,
         collision: { x: -7, y: -7, w: 15, h: 15},
         graphics: {x:-8,y:-16,w:16,h:24},
         movement : [{x: -100, y:0},{x: 100,y:0},{x:0,y:-100},{x:0,y:100}],
         currentFrame: 0,
+        spaceDown: false,
 
         construct: function(id){
           players[id] = $.extend(true,{},player);
@@ -217,6 +218,9 @@
         },
 
         bindToKeyboard: function(){
+            $(document).unbind('keydown');
+            $(document).unbind('keyup');
+
             var p=this; //scope into the jquery callbacks
             $(document).keydown(function(e){
                 switch(e.keyCode){
@@ -233,6 +237,9 @@
                         p.move(player.directions.down);
                         break;
                     case 32:
+                        if(p.spaceDown==true) break;
+                        console.log("Calling space down=",p.spaceDown);
+                        p.spaceDown = true;
                         p.bomb();
                         break;
                 }
@@ -250,6 +257,9 @@
                         break;
                     case 40:
                         p.stop(player.directions.down);
+                        break;
+                    case 32:
+                        p.spaceDown = false;
                         break;
                 }
             });
@@ -386,8 +396,9 @@
         },
         bomb: function(){
             if(this.alive==false) return;
-            if(this.bombs.length>=this.maxBombs) return;
+            if(this.bombs.length>this.maxBombs) return;
             new Bomb(this,this.x,this.y);
+            console.log("Placing a bomb locally at ",this.x,this.y, this.id);
             socket.emit('player bomb',{'x':this.x,'y':this.y,'id':this.id});
         },
         serverBomb: function(data){
@@ -431,8 +442,7 @@
             if(players[myId].alive==true){
                 var explosionTiles = [];
                 this.splosionData = [this.tileX-1,null,this.tileX+1,null,this.tileY-1,null, this.tileY,null];
-                console.log('1'); 
-                for(var x= this.tileX; x>= this.tileX -3; x--){
+                for(var x= this.tileX; x>= this.tileX -2; x--){
                     if (map[this.tileY][x] != 0){
                             if(map[this.tileY][x] > 1){
                                 map[this.tileY][x]=0;
@@ -443,7 +453,6 @@
                     this.splosionData[1] = x;
                     if(rect_collision(players[myId].getRect(),[x*16+2,this.tileY*16+2,12,12])) players[myId].die();
                 }
-                console.log('2'); 
                 for (var x = this.tileX + 1; x <= this.tileX + 2; x++) {
                     if (map[this.tileY][x] != 0){
                         if(map[this.tileY][x]>1){
@@ -455,8 +464,7 @@
                     this.splosionData[3] = x;
                     if(rect_collision(players[myId].getRect(),[x*16+2,this.tileY*16+2,12,12])) players[myId].die();
                 }
-                console.log('3'); 
-                for (var y = this.tileY - 1; y >= this.tileY - 3; y--) {
+                for (var y = this.tileY - 1; y >= this.tileY - 2; y--) {
                     if (map[y][this.tileX] != 0){
                         if(map[y][this.tileX]>1){
                             map[y][this.tileX] = 0;
@@ -467,7 +475,6 @@
                     this.splosionData[5] = y;
                     if(rect_collision(players[myId].getRect(),[this.tileX*16+2,y*16+2,12,12])) players[myId].die();
                 }
-                console.log('4'); 
                 for (var y = this.tileY; y <= this.tileY + 2; y++) {
                     if (map[y][this.tileX] != 0){
                         if(map[y][this.tileX]>1){
