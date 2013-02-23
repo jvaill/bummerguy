@@ -135,6 +135,7 @@
         for (var i = 0; i < bombs.length; i++) {
           bombs[i].draw();
         }
+        drawBomberman();
       }
 
       function start() {
@@ -178,7 +179,6 @@
           bomberman.src = "images/bomberman.png";
 
           bomberman.onload = function(){
-            drawBomberman();
             start();
           };
         };
