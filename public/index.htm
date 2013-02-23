@@ -169,19 +169,19 @@
         tileX: 0,
         tileY: 0,
         width: 16,
-        height: 16,
+        height: 19,
         pos_x: 0,
         pos_y: 0,
         curTicks: 0,
         isExploded: false,
         owner: null,
-        img: null,
+        bomb_img: null,
 
         initialize: function(owner) {
           this.tileX = Math.floor(owner.x / TILE_WIDTH);
           this.tileY = Math.floor(owner.y / TILE_HEIGHT);
-          this.img = new Image();
-          this.img.src = "images/bomb.png";
+          this.bomb_img = new Image();
+          this.bomb_img.src = "images/bomb.png";
           this.owner = owner;
           this.owner.bombs.push(this);
         },
@@ -199,7 +199,7 @@
 
         draw: function() {
           if (!this.isExploded) {
-            ctx.drawImage(this.img, this.pos_x, this.pos_y, this.width, this.height, this.x, this.y, TILE_WIDTH, TILE_HEIGHT);
+            ctx.drawImage(this.bomb_img, this.pos_x + this.width*2, this.pos_y, this.width, this.height, this.tileX * TILE_WIDTH, this.tileY * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
           }
           else {
             // Left flame
