@@ -35,6 +35,8 @@
       var CANVAS_HEIGHT = 208;
       var BOMBERMAN_HEIGHT = 25;
       var BOMBERMAN_WIDTH = 14;
+      var BOMBERMAN_POS_X = 34;
+      var BOMBERMAN_POS_Y = 46;
       var START_X = TILE_WIDTH;
       var START_Y = TILE_HEIGHT;
 
@@ -62,6 +64,10 @@
       var Bomb = Class({
         x: 0,
         y: 0,
+        width: 16,
+        height: 16,
+        pos_x: 0,
+        pos_y: 0,
 
         initialize: function(tileX, tileY) {
           this.x = tileX * TILE_WIDTH;
@@ -73,7 +79,7 @@
         },
 
         draw: function() {
-          ctx.fillRect(this.x, this.y, TILE_WIDTH, TILE_HEIGHT);  
+          ctx.drawImage(this.x, this.y, pos_x, pos_y, width, height);  
         }
       });
 
@@ -115,9 +121,9 @@
         }
       }
 
-      function drawBomberman(){
+      function drawBomberman(x, y){
         // Draw bomberman
-        ctx.drawImage(bomberman, 34 , 46, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT, START_X, START_Y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT);
+        ctx.drawImage(bomberman, BOMBERMAN_POS_X , BOMBERMAN_POS_Y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT, x, y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT);
       }
       
       window.createBomb = function(tileX, tileY) {
@@ -187,6 +193,10 @@
 
       init();
     });
+
+    function TextureManager(){
+
+    }
 
   </script>
 </head>
