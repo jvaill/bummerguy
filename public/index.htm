@@ -197,6 +197,40 @@
         for (var i = 0; i < mapHeight; i++) {
           map[i] = [];
         }
+
+        // Grass
+        for (var y = 0; y < mapHeight; y++) {
+          for (var x = 0; x < mapWidth; x++) {
+            map[y][x] = 0;
+          }
+        }
+
+        // Top border
+        for (var x = 0; x < mapWidth; x++) {
+          map[0][x] = 1;
+        }
+
+        // Bottom border
+        for (var x = 0; x < mapWidth; x++) {
+          map[mapHeight - 1][x] = 1;
+        }
+
+        // Left border
+        for (var y = 0; y < mapHeight; y++) {
+          map[y][0] = 1;
+        }
+
+        // Right border
+        for (var y = 0; y < mapHeight; y++) {
+          map[y][mapWidth - 1] = 1;
+        }
+
+        // Inside indestructible blocks
+        for (var y = 2; y < mapHeight - 2; y += 2) {
+          for (var x = 2; x < mapWidth - 2; x += 2) {
+            map[y][x] = 1;
+          }
+        }
       }
 
       function drawBackground() {
