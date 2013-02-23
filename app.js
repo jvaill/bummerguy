@@ -38,10 +38,29 @@ server.listen(app.get('port'), function(){
 //server side using socket.io
 io = require('socket.io').listen(server);
 
+var id = 0;
 io.sockets.on('connection',function(socket){
-  console.log("connected!");
-  socket.emit('news', { hello: 'world' });
-  socket.on('my other event', function (data) {
-    console.log(data);
+  if(id==4){
+    socket.emit('full');
+    return;
+  }
+  socket.emit('id assignment', { 'id': id });
+  socket.broadcast.emit('reset',{'id':id});
+  id++;
+
+  socket.on('player move', function (data) {
+    socket.broadcast.emit('player move',data);
+  });
+
+  socket.on('player stop', function (data) {
+    socket.broadcast.emit('player stop',data);
+  });
+
+  socket.on('player bomb', function (data) {
+    socket.broadcast.emit('player bomb',data);
+  });
+
+  socket.on('player die', function (data) {
+    socket.broadcast.emit('player die',data);
   });
 });
