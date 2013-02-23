@@ -60,8 +60,12 @@
       }
 
       var Bomb = Class({
+        TIME_TILL_EXPLODE: 2,
+        TIME_TILL_DESTROY: 5,
         x: 0,
         y: 0,
+        curTicks: 0,
+        isExploded: false,
 
         initialize: function(tileX, tileY) {
           this.x = tileX * TILE_WIDTH;
@@ -70,10 +74,30 @@
         },
 
         update: function() {
+          this.curTicks++;
+          if (this.curTicks == this.TIME_TILL_EXPLODE * FPS) {
+            this.isExploded = true;
+          }
+          else if (this.curTicks == this.TIME_TILL_DESTROY * FPS) {
+            var idx = bombs.indexOf(this);
+            bombs.splice(idx, 1);
+          }
         },
 
         draw: function() {
-          ctx.fillRect(this.x, this.y, TILE_WIDTH, TILE_HEIGHT);  
+          if (!this.isExploded) {
+            ctx.fillRect(this.x, this.y, TILE_WIDTH, TILE_HEIGHT);
+          }
+          else {
+            // Left flame
+            ctx.fillRect(this.x - TILE_WIDTH * 2, this.y, TILE_WIDTH * 2, TILE_HEIGHT);
+            // Right flame
+            ctx.fillRect(this.x + TILE_WIDTH, this.y, TILE_WIDTH * 2, TILE_HEIGHT);
+            // Top flame
+            ctx.fillRect(this.x, this.y - TILE_HEIGHT * 2, TILE_WIDTH, TILE_HEIGHT * 2);
+            // Bottom flame
+            ctx.fillRect(this.x, this.y + TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT * 2);
+          }
         }
       });
 
