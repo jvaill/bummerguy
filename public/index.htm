@@ -43,6 +43,7 @@
       window.players = [];
 
       var ctx = null,
+          map = null,
           background = null,
           bomberman = null,
           interval = null,
@@ -173,7 +174,7 @@
 
         draw: function() {
           if (!this.isExploded) {
-          ctx.drawImage(this.x, this.y, pos_x, pos_y, width, height);  
+            ctx.fillRect(this.x, this.y, TILE_WIDTH, TILE_HEIGHT);  
           }
           else {
             // Left flame
@@ -187,6 +188,16 @@
           }
         }
       });
+
+      function generateMap() {
+        var mapWidth = CANVAS_WIDTH / TILE_WIDTH,
+            mapHeight = CANVAS_HEIGHT / TILE_HEIGHT;
+
+        map = [];
+        for (var i = 0; i < mapHeight; i++) {
+          map[i] = [];
+        }
+      }
 
       function drawBackground() {
         // Draw top border
@@ -299,6 +310,7 @@
           bomberman.src = "images/bomberman.png";
 
           bomberman.onload = function(){
+            generateMap();
             start();
           };
         };
