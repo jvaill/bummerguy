@@ -240,7 +240,7 @@
           bombs[i].update();
         }
         for(var i=0;i<players.length;i++){
-            players[i].update();    
+            players[i].update(1.0/30);    
         }
       }
 
@@ -252,7 +252,7 @@
         for(var i=0;i<players.length;i++){
             players[i].draw();    
         }
-        drawBomberman(START_X, START_Y);
+//        drawBomberman(START_X, START_Y);
       }
 
       function start() {
