@@ -42,6 +42,8 @@
       var BOMBERMAN_POS_Y = 46;
       var START_X = TILE_WIDTH;
       var START_Y = TILE_HEIGHT;
+      var TICKS_PER_FRAME = 15;
+      var BOMB_FRAMES = 2;
 
       var TILES = {
         0: {x: TILE_WIDTH, y: TILE_HEIGHT},
@@ -202,7 +204,8 @@
 
         draw: function() {
           if (!this.isExploded) {
-            ctx.drawImage(this.bomb_img, this.pos_x + this.width*2, this.pos_y, this.width, this.height, this.x, this.y, TILE_WIDTH, TILE_HEIGHT);
+            this.pos_x = this.width*(Math.round((this.curTicks / TICKS_PER_FRAME) % BOMB_FRAMES));
+            ctx.drawImage(this.bomb_img, this.pos_x, this.pos_y, this.width, this.height, this.x, this.y, TILE_WIDTH, TILE_HEIGHT);
           }
           else {
             // Left flame
