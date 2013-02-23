@@ -34,12 +34,20 @@
       var TILE_HEIGHT = 16;
       var CANVAS_WIDTH = 240;
       var CANVAS_HEIGHT = 208;
+      var MAP_WIDTH = CANVAS_WIDTH / TILE_WIDTH;
+      var MAP_HEIGHT = CANVAS_HEIGHT / TILE_HEIGHT;
       var BOMBERMAN_HEIGHT = 25;
       var BOMBERMAN_WIDTH = 14;
       var BOMBERMAN_POS_X = 34;
       var BOMBERMAN_POS_Y = 46;
       var START_X = TILE_WIDTH;
       var START_Y = TILE_HEIGHT;
+
+      var TILES = {
+        0: {x: TILE_WIDTH, y: TILE_HEIGHT},
+        1: {x: 0, y: 0}
+      };
+
       window.players = [];
 
       var ctx = null,
@@ -190,83 +198,52 @@
       });
 
       function generateMap() {
-        var mapWidth = CANVAS_WIDTH / TILE_WIDTH,
-            mapHeight = CANVAS_HEIGHT / TILE_HEIGHT;
-
         map = [];
-        for (var i = 0; i < mapHeight; i++) {
+        for (var i = 0; i < MAP_HEIGHT; i++) {
           map[i] = [];
         }
 
         // Grass
-        for (var y = 0; y < mapHeight; y++) {
-          for (var x = 0; x < mapWidth; x++) {
+        for (var y = 0; y < MAP_HEIGHT; y++) {
+          for (var x = 0; x < MAP_WIDTH; x++) {
             map[y][x] = 0;
           }
         }
 
         // Top border
-        for (var x = 0; x < mapWidth; x++) {
+        for (var x = 0; x < MAP_WIDTH; x++) {
           map[0][x] = 1;
         }
 
         // Bottom border
-        for (var x = 0; x < mapWidth; x++) {
-          map[mapHeight - 1][x] = 1;
+        for (var x = 0; x < MAP_WIDTH; x++) {
+          map[MAP_HEIGHT - 1][x] = 1;
         }
 
         // Left border
-        for (var y = 0; y < mapHeight; y++) {
+        for (var y = 0; y < MAP_HEIGHT; y++) {
           map[y][0] = 1;
         }
 
         // Right border
-        for (var y = 0; y < mapHeight; y++) {
-          map[y][mapWidth - 1] = 1;
+        for (var y = 0; y < MAP_HEIGHT; y++) {
+          map[y][MAP_WIDTH - 1] = 1;
         }
 
         // Inside indestructible blocks
-        for (var y = 2; y < mapHeight - 2; y += 2) {
-          for (var x = 2; x < mapWidth - 2; x += 2) {
+        for (var y = 2; y < MAP_HEIGHT - 2; y += 2) {
+          for (var x = 2; x < MAP_WIDTH - 2; x += 2) {
             map[y][x] = 1;
           }
         }
       }
 
-      function drawBackground() {
-        // Draw top border
-        for (var x = 0; x < CANVAS_WIDTH; x += TILE_WIDTH) {
-          ctx.drawImage(background, 0, 0, TILE_WIDTH, TILE_HEIGHT, x, 0, TILE_WIDTH, TILE_HEIGHT);
-        }
-
-        // Draw bottom border
-        var y = CANVAS_HEIGHT - TILE_HEIGHT;
-        for (var x = 0; x < CANVAS_WIDTH; x += TILE_WIDTH) {
-          ctx.drawImage(background, 0, 0, TILE_WIDTH, TILE_HEIGHT, x, y, TILE_WIDTH, TILE_HEIGHT);
-        }
-
-        // Draw left border
-        for (var y = 0; y < CANVAS_HEIGHT; y += TILE_HEIGHT) {
-          ctx.drawImage(background, 0, 0, TILE_WIDTH, TILE_HEIGHT, 0, y, TILE_WIDTH, TILE_HEIGHT);
-        }
-
-        // Draw right border
-        var x = CANVAS_WIDTH - TILE_WIDTH;
-        for (var y = 0; y < CANVAS_HEIGHT; y += TILE_HEIGHT) {
-          ctx.drawImage(background, 0, 0, TILE_WIDTH, TILE_HEIGHT, x, y, TILE_WIDTH, TILE_HEIGHT);
-        }
-
-        // Draw grass
-        for (var y = TILE_HEIGHT; y < CANVAS_HEIGHT - TILE_HEIGHT; y += TILE_HEIGHT) {
-          for (var x = TILE_WIDTH; x < CANVAS_WIDTH - TILE_WIDTH; x += TILE_WIDTH) {
-            ctx.drawImage(background, TILE_WIDTH, TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT, x, y, TILE_WIDTH, TILE_HEIGHT);
-          }
-        }
-
-        // Draw inside indestructible blocks
-        for (var y = TILE_HEIGHT * 2; y < CANVAS_HEIGHT - TILE_HEIGHT * 2; y += TILE_HEIGHT * 2) {
-          for (var x = TILE_WIDTH * 2; x < CANVAS_WIDTH - TILE_WIDTH * 2; x += TILE_WIDTH * 2) {
-            ctx.drawImage(background, 0, 0, TILE_WIDTH, TILE_HEIGHT, x, y, TILE_WIDTH, TILE_HEIGHT);
+      function drawArea() {
+        for (var y = 0; y < MAP_HEIGHT; y++) {
+          for (var x = 0; x < MAP_WIDTH; x++) {
+            var tileIdx = map[y][x];
+            var tile = TILES[tileIdx];
+            ctx.drawImage(background, tile.x, tile.y, TILE_WIDTH, TILE_HEIGHT, x * TILE_WIDTH, y * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
           }
         }
       }
@@ -290,7 +267,7 @@
       }
 
       function draw() {
-        drawBackground();
+        drawArea();
         for (var i = 0; i < bombs.length; i++) {
             bombs[i].draw();
         }
