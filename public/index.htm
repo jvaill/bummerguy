@@ -40,9 +40,9 @@
       var MAP_WIDTH = CANVAS_WIDTH / TILE_WIDTH;
       var MAP_HEIGHT = CANVAS_HEIGHT / TILE_HEIGHT;
       var BOMBERMAN_HEIGHT = 25;
-      var BOMBERMAN_WIDTH = 14;
-      var BOMBERMAN_POS_X = 34;
-      var BOMBERMAN_POS_Y = 46;
+      var BOMBERMAN_WIDTH = 20;
+      var BOMBERMAN_POS_X = 0;
+      var BOMBERMAN_POS_Y = 35;
       var START_X = TILE_WIDTH;
       var START_Y = TILE_HEIGHT;
       var TICKS_PER_FRAME = 15;
@@ -98,12 +98,13 @@
         collision: { x: -8, y: -8, w: 16, h: 16},
         graphics: {x:-8,y:-16,w:16,h:24},
         movement : [{x: -100, y:0},{x: 100,y:0},{x:0,y:-100},{x:0,y:100}],
-        
+        pos: {x: BOMBERMAN_POS_X, y: BOMBERMAN_POS_Y},
+
         draw: function(){
             for(var i=0;i < this.bombs.length;i++){
                 this.bombs[i].draw();
             }
-            ctx.drawImage(bomberman, BOMBERMAN_POS_X , BOMBERMAN_POS_Y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT, this.x+this.graphics.x, this.y+this.graphics.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT);
+            ctx.drawImage(bomberman, this.pos.x , this.pos.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT, this.x+this.graphics.x, this.y+this.graphics.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT);
 
         },
 
@@ -172,7 +173,6 @@
         },
         bomb: function(){
             if(this.bombs.length>=this.maxBombs) return;
-            
             new Bomb(this);
         }
       }
@@ -406,7 +406,6 @@
             start();
           };
         };
-
       }
 
       init();
