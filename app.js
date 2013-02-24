@@ -37,6 +37,7 @@ server.listen(app.get('port'), function(){
 
 //server side using socket.io
 io = require('socket.io').listen(server);
+io.set('log level',1);
 
 var id = 0;
 io.sockets.on('connection',function(socket){

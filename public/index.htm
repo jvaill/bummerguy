@@ -215,7 +215,7 @@
         y: 24,
         direction: 0,
         bombs: [],
-        maxBombs: 1,
+        maxBombs: 4,
         directions: { left: 0, right: 1, up: 2, down: 3},
         moving: false,
         collision: { x: -7, y: -7, w: 15, h: 15},
@@ -444,8 +444,8 @@
       }
 
       var Bomb = Class({
-        TIME_TILL_EXPLODE: 4,
-        TIME_TILL_DESTROY: 4.5,
+        TIME_TILL_EXPLODE: 2,
+        TIME_TILL_DESTROY: 2.5,
         tileX: 0,
         tileY: 0,
         width: 16,
