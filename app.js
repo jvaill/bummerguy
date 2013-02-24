@@ -68,11 +68,12 @@ io.sockets.on('connection',function(socket){
     if(!(data.id in deadPlayers)){
         deadCount++;
         deadPlayers[data.id] = true;
+        if(deadCount < id-1) return;
         for(var i=0;i<id;i++){
             if(!(i in deadPlayers)){
                 var seed = Math.random();
-                socket.broadcast.emit('message',"<b>Player "+i+" wins!</b>");
-                socket.emit('message',"<b>Player "+i+" wins!</b>");
+                socket.broadcast.emit('message',"<b>Player "+(i+1)+" wins!</b>");
+                socket.emit('message',"<b>Player "+(i+1)+" wins!</b>");
                 socket.broadcast.emit('reset',{'id':id-1,'seed':seed});
                 socket.emit('reset',{'id':id-1,'seed':seed});
                 console.log("game ended",deadCount,deadPlayers);
