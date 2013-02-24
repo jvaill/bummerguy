@@ -476,7 +476,6 @@
           if (this.isExploded ==false && this.curTicks == this.TIME_TILL_EXPLODE * FPS) {
             this.isExploded = true;
             //check if it killed our player
-            if(players[myId].alive==true){
                 var explosionTiles = [];
                 this.splosionData = [this.tileX-1,null,this.tileX+1,null,this.tileY-1,null, this.tileY,null];
                 for(var x= this.tileX; x>= this.tileX -2; x--){
@@ -523,7 +522,6 @@
                     this.splosionData[7] = y;
                     if(rect_collision(players[myId].getRect(),[this.tileX*16+2,y*16+2,12,12])) players[myId].die(this.owner.id);
                 }
-            }
 
           }
           else if (this.curTicks == this.TIME_TILL_DESTROY * FPS) {
