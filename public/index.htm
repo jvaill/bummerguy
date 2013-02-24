@@ -6,7 +6,7 @@
 
   <style type="text/css">
     body {
-      font-family: hevetica;
+      font-family: "Helvetica Neue", hevetica;
       background-color: #EEE;
       background: url(images/sitebg.png) no-repeat center center fixed;
       -webkit-background-size: cover;
@@ -16,6 +16,7 @@
     }
 
     #game {
+      overflow: hidden;
       border-radius: 6px;
       position: absolute;
       width: 960px;
@@ -28,10 +29,13 @@
     }
 
     #chat {
+      background-color: rgb(48, 128, 48);
       width: 196px;
       height: 576px;
       margin-left: 720px;
       padding: 24px;
+      font-weight: 300;
+      color: white;
     }
     body{
       overflow: hidden;
@@ -93,6 +97,7 @@
       $('form').submit(function() {
         var message = $('#message').val();
         $('#message').val('');
+        $('#empty').hide();
         $('#messages').append('<li><strong>You:</strong> ' + message + '</li>');
         window.socket.emit('message', message);
         return false;
@@ -101,6 +106,7 @@
 /* ==== Socket Stuff ==== */
       window.socket = io.connect();
       socket.on('message', function (data) {
+        $('#empty').hide();
         $('#messages').append('<li><strong>Them:</strong> ' + data + '</li>');
       });
       socket.on('id assignment', function (data) {
@@ -716,7 +722,9 @@
   <div id="game">
     <canvas></canvas>
     <div id="chat">
-      <ul id="messages"></ul>
+      <ul id="messages">
+        <li id="empty">Messages from other players will appear here.</li>
+      </ul>
       <form>
         <input id="message" type="text" />
         <input type="submit" />
