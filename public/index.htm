@@ -109,7 +109,7 @@
         for(var i=0; i<=data.id;i++){
             player.construct(i);
         }
-        generateMap();
+        generateMap(data.seed);
         start();
       }).on('reset', function(data){
         console.log("reset, players:",data.id);
@@ -117,7 +117,7 @@
         for(var i=0;i<=data.id; i++){
             player.construct(i);
         }
-        generateMap();
+        generateMap(data.seed);
         start();
       }).on('player move',function(data){
         players[data.id].serverMove(data);
@@ -579,7 +579,7 @@
           }
         }
 
-        Math.seedrandom(1337);
+        Math.seedrandom(seed);
 
         // Destructible blocks
         for (var y = 0; y < MAP_HEIGHT; y++) {

@@ -44,8 +44,11 @@ io.sockets.on('connection',function(socket){
     socket.emit('full');
     return;
   }
-  socket.emit('id assignment', { 'id': id });
-  socket.broadcast.emit('reset',{'id':id});
+  var seed = Math.random();
+  socket.emit('id assignment', { 'id': id,'seed':seed });
+  socket.broadcast.emit('reset',{'id':id,'seed':seed});
+  var deadPlayers = [];
+  var deadCount=0;
   id++;
 
   socket.on('player move', function (data) {
@@ -62,6 +65,22 @@ io.sockets.on('connection',function(socket){
 
   socket.on('player die', function (data) {
     socket.broadcast.emit('player die',data);
+    if(!(data.id in deadPlayers)){
+        deadCount++;
+        deadPlayers[data.id] = true;
+        for(var i=0;i<id;i++){
+            if(!(i in deadPlayers)){
+                var seed = Math.random();
+                socket.broadcast.emit('message',"<b>Player "+i+" wins!</b>");
+                socket.emit('message',"<b>Player "+i+" wins!</b>");
+                socket.broadcast.emit('reset',{'id':id-1,'seed':seed});
+                socket.emit('reset',{'id':id-1,'seed':seed});
+                console.log("game ended",deadCount,deadPlayers);
+                deadCount=0;
+                deadPlayers=[];
+            }
+        }
+    }
   });
 
   socket.on('message', function (data) {
