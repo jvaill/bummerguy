@@ -41,11 +41,19 @@
       overflow: hidden;
     }
 
+    li {
+      padding-bottom: 5px;
+    }
+
     #messages {
       list-style-type: none;
       padding: 0;
       height: 520px;
       overflow: scroll;
+    }
+
+    .kill {
+      color: red;
     }
 
     canvas {
@@ -91,6 +99,8 @@
         [2, 22, 46, 70, 90, 110, 130, 150],
         [2, 22, 46, 70, 92, 110, 130, 150]
       ]
+
+      var BOMBERMEN_COLORS = ['White',  'Red', 'Blue', 'Purple'];
       var startPositions = [{x:(1+.5)*16,y:(1+.5)*16},{x:(13+0.5)*16,y:(1+0.5)*16},{x:(1+0.5)*16,y:(11+0.5)*16},{x:(13+.5)*16,y:(11+0.5)*16}];
       window.myId = null;
 
@@ -101,6 +111,10 @@
         $('#messages').append('<li><strong>You:</strong> ' + message + '</li>');
         window.socket.emit('message', message);
         return false;
+      });
+
+      $('#message').keydown(function(e) {
+        e.stopPropagation();
       });
 
 /* ==== Socket Stuff ==== */
@@ -136,7 +150,13 @@
         socket.disconnect();
             $("#body").html("Server restarted, <a onclick='location.reload();'>Refresh!</a>");
       }).on('player die',function(data){
-        $('#messages').append('<li>' + data.killer + ' killed ' + data.id + '</li>');
+        $('#empty').hide();
+        if (data.id == data.killer) {
+          $('#messages').append('<li class="kill">' + BOMBERMEN_COLORS[data.id] + " decided that life wasn't worth living.</li>");
+        }
+        else {
+          $('#messages').append('<li class="kill">' + BOMBERMEN_COLORS[data.killer] + ' killed ' + BOMBERMEN_COLORS[data.id] + '.</li>');
+        }
         players[data.id].serverDie();
       });
 
@@ -274,9 +294,16 @@
             });
         },
         die: function(killer){
+            if (!this.alive) return;
             this.alive=false;
             console.log('I am dead');
-            $('#messages').append('<li>' + killer + ' killed you</li>');
+            $('#empty').hide();
+            if (killer == this.id) {
+              $('#messages').append("<li class='kill'>Decided that life wasn't worth living?</li>");
+            }
+            else {
+              $('#messages').append("<li class='kill'>" + BOMBERMEN_COLORS[killer] + ' dropped a bomb too close to your toes.</li>');
+            }
             socket.emit('player die',{'id':this.id, 'killer':killer});
         },
         serverDie: function(){
