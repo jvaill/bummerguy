@@ -6,7 +6,7 @@
 
   <style type="text/css">
     body {
-      font-family: hevetica;
+      font-family: "Helvetica Neue", hevetica;
       background-color: #EEE;
       background: url(images/sitebg.png) no-repeat center center fixed;
       -webkit-background-size: cover;
@@ -16,6 +16,7 @@
     }
 
     #game {
+      overflow: hidden;
       border-radius: 6px;
       position: absolute;
       width: 960px;
@@ -28,13 +29,20 @@
     }
 
     #chat {
+      background-color: rgb(48, 128, 48);
       width: 196px;
       height: 576px;
       margin-left: 720px;
       padding: 24px;
+      font-weight: 300;
+      color: white;
     }
     body{
       overflow: hidden;
+    }
+
+    li {
+      padding-bottom: 5px;
     }
 
     #messages {
@@ -42,6 +50,10 @@
       padding: 0;
       height: 520px;
       overflow: scroll;
+    }
+
+    .kill {
+      color: red;
     }
 
     canvas {
@@ -87,20 +99,28 @@
         [2, 22, 46, 70, 90, 110, 130, 150],
         [2, 22, 46, 70, 92, 110, 130, 150]
       ]
+
+      var BOMBERMEN_COLORS = ['White',  'Red', 'Blue', 'Purple'];
       var startPositions = [{x:(1+.5)*16,y:(1+.5)*16},{x:(13+0.5)*16,y:(1+0.5)*16},{x:(1+0.5)*16,y:(11+0.5)*16},{x:(13+.5)*16,y:(11+0.5)*16}];
       window.myId = null;
 
       $('form').submit(function() {
         var message = $('#message').val();
         $('#message').val('');
+        $('#empty').hide();
         $('#messages').append('<li><strong>You:</strong> ' + message + '</li>');
         window.socket.emit('message', message);
         return false;
       });
 
+      $('#message').keydown(function(e) {
+        e.stopPropagation();
+      });
+
 /* ==== Socket Stuff ==== */
       window.socket = io.connect();
       socket.on('message', function (data) {
+        $('#empty').hide();
         $('#messages').append('<li><strong>Them:</strong> ' + data + '</li>');
       });
       socket.on('id assignment', function (data) {
@@ -130,6 +150,13 @@
         socket.disconnect();
             $("#body").html("Server restarted, <a onclick='location.reload();'>Refresh!</a>");
       }).on('player die',function(data){
+        $('#empty').hide();
+        if (data.id == data.killer) {
+          $('#messages').append('<li class="kill">' + BOMBERMEN_COLORS[data.id] + " decided that life wasn't worth living.</li>");
+        }
+        else {
+          $('#messages').append('<li class="kill">' + BOMBERMEN_COLORS[data.killer] + ' killed ' + BOMBERMEN_COLORS[data.id] + '.</li>');
+        }
         players[data.id].serverDie();
       });
 
@@ -145,7 +172,10 @@
           map = null,
           background = null,
           bomberman = null,
-          interval = null;
+          interval = null,
+          bombermen = [],
+          interval = null,
+          bombs = [];
 
       // From: http://www.htmlgoodies.com/html5/tutorials/create-an-object-oriented-javascript-class-constructor.html#fbid=EYauP6cfQH6
       var Class = function(methods) {   
@@ -212,7 +242,7 @@
             for(var i=0;i < this.bombs.length;i++){
                 this.bombs[i].draw();
             }
-            if(this.alive) ctx.drawImage(bomberman, this.pos.x , this.pos.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT, this.x+this.graphics.x, this.y+this.graphics.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT);
+            if(this.alive) ctx.drawImage(bombermen[this.id], this.pos.x , this.pos.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT, this.x+this.graphics.x, this.y+this.graphics.y, BOMBERMAN_WIDTH, BOMBERMAN_HEIGHT);
 
         },
 
@@ -263,10 +293,18 @@
                 }
             });
         },
-        die: function(){
+        die: function(killer){
+            if (!this.alive) return;
             this.alive=false;
             console.log('I am dead');
-            socket.emit('player die',{'id':this.id});
+            $('#empty').hide();
+            if (killer == this.id) {
+              $('#messages').append("<li class='kill'>Decided that life wasn't worth living?</li>");
+            }
+            else {
+              $('#messages').append("<li class='kill'>" + BOMBERMEN_COLORS[killer] + ' dropped a bomb too close to your toes.</li>');
+            }
+            socket.emit('player die',{'id':this.id, 'killer':killer});
         },
         serverDie: function(){
             this.alive=false;
@@ -450,7 +488,7 @@
                             break;
                     }
                     this.splosionData[1] = x;
-                    if(rect_collision(players[myId].getRect(),[x*16+2,this.tileY*16+2,12,12])) players[myId].die();
+                    if(rect_collision(players[myId].getRect(),[x*16+2,this.tileY*16+2,12,12])) players[myId].die(this.owner.id);
                 }
                 for (var x = this.tileX + 1; x <= this.tileX + 2; x++) {
                     if (map[this.tileY][x] != 0){
@@ -461,7 +499,7 @@
                         break;
                     }
                     this.splosionData[3] = x;
-                    if(rect_collision(players[myId].getRect(),[x*16+2,this.tileY*16+2,12,12])) players[myId].die();
+                    if(rect_collision(players[myId].getRect(),[x*16+2,this.tileY*16+2,12,12])) players[myId].die(this.owner.id);
                 }
                 for (var y = this.tileY - 1; y >= this.tileY - 2; y--) {
                     if (map[y][this.tileX] != 0){
@@ -472,7 +510,7 @@
                         break;
                     }
                     this.splosionData[5] = y;
-                    if(rect_collision(players[myId].getRect(),[this.tileX*16+2,y*16+2,12,12])) players[myId].die();
+                    if(rect_collision(players[myId].getRect(),[this.tileX*16+2,y*16+2,12,12])) players[myId].die(this.owner.id);
                 }
                 for (var y = this.tileY; y <= this.tileY + 2; y++) {
                     if (map[y][this.tileX] != 0){
@@ -483,7 +521,7 @@
                         break;
                     }
                     this.splosionData[7] = y;
-                    if(rect_collision(players[myId].getRect(),[this.tileX*16+2,y*16+2,12,12])) players[myId].die();
+                    if(rect_collision(players[myId].getRect(),[this.tileX*16+2,y*16+2,12,12])) players[myId].die(this.owner.id);
                 }
             }
 
@@ -701,16 +739,16 @@
 
         // Load background
         background = new Image();
+        bomberman  = new Image();
+        bomberman2 = new Image();
+        bomberman3 = new Image();
+        bomberman4 = new Image();
         background.src = "images/background.png";
-
-        background.onload = function() {
-          bomberman = new Image();
-          bomberman.src = "images/bomberman.png";
-
-          bomberman.onload = function(){
-            
-          };
-        };
+        bomberman.src  = "images/bomberman.png";
+        bomberman2.src = "images/bomberman2.png";
+        bomberman3.src = "images/bomberman3.png";
+        bomberman4.src = "images/bomberman4.png";
+        bombermen.push(bomberman, bomberman2, bomberman3, bomberman4);
       }
 
       init();
@@ -722,7 +760,9 @@
   <div id="game">
     <canvas></canvas>
     <div id="chat">
-      <ul id="messages"></ul>
+      <ul id="messages">
+        <li id="empty">Messages from other players will appear here.</li>
+      </ul>
       <form>
         <input id="message" type="text" />
         <input type="submit" />
