@@ -135,6 +135,7 @@
         socket.disconnect();
             $("#body").html("Server restarted, <a onclick='location.reload();'>Refresh!</a>");
       }).on('player die',function(data){
+        $('#messages').append('<li>' + data.killer + ' killed ' + data.id + '</li>');
         players[data.id].serverDie();
       });
 
@@ -260,10 +261,11 @@
                 }
             });
         },
-        die: function(){
+        die: function(killer){
             this.alive=false;
             console.log('I am dead');
-            socket.emit('player die',{'id':this.id});
+            $('#messages').append('<li>' + killer + ' killed you</li>');
+            socket.emit('player die',{'id':this.id, 'killer':killer});
         },
         serverDie: function(){
             this.alive=false;
@@ -447,7 +449,7 @@
                             break;
                     }
                     this.splosionData[1] = x;
-                    if(rect_collision(players[myId].getRect(),[x*16+2,this.tileY*16+2,12,12])) players[myId].die();
+                    if(rect_collision(players[myId].getRect(),[x*16+2,this.tileY*16+2,12,12])) players[myId].die(this.owner.id);
                 }
                 console.log('2'); 
                 for (var x = this.tileX + 1; x <= this.tileX + 2; x++) {
@@ -459,7 +461,7 @@
                         break;
                     }
                     this.splosionData[3] = x;
-                    if(rect_collision(players[myId].getRect(),[x*16+2,this.tileY*16+2,12,12])) players[myId].die();
+                    if(rect_collision(players[myId].getRect(),[x*16+2,this.tileY*16+2,12,12])) players[myId].die(this.owner.id);
                 }
                 console.log('3'); 
                 for (var y = this.tileY - 1; y >= this.tileY - 3; y--) {
@@ -471,7 +473,7 @@
                         break;
                     }
                     this.splosionData[5] = y;
-                    if(rect_collision(players[myId].getRect(),[this.tileX*16+2,y*16+2,12,12])) players[myId].die();
+                    if(rect_collision(players[myId].getRect(),[this.tileX*16+2,y*16+2,12,12])) players[myId].die(this.owner.id);
                 }
                 console.log('4'); 
                 for (var y = this.tileY; y <= this.tileY + 2; y++) {
@@ -483,7 +485,7 @@
                         break;
                     }
                     this.splosionData[7] = y;
-                    if(rect_collision(players[myId].getRect(),[this.tileX*16+2,y*16+2,12,12])) players[myId].die();
+                    if(rect_collision(players[myId].getRect(),[this.tileX*16+2,y*16+2,12,12])) players[myId].die(this.owner.id);
                 }
             }
 
